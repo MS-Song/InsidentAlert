@@ -1,14 +1,13 @@
-package com.song7749.incident.config;
+package com.song7749.incident.web.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 
-//@Configuration
-//@EnableWebMvc
-//@ComponentScan("com.song7749")
+@Configuration
 public class HttpInterceptorConfig extends WebMvcConfigurationSupport {
 
 	@Autowired

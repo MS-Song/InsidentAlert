@@ -17,6 +17,7 @@ import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.boot.jdbc.DatabaseDriver;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import com.song7749.base.Entities;
 import com.song7749.incident.type.Charset;
@@ -89,6 +90,7 @@ public class Database extends Entities{
 	@Column(nullable=false)
 	@CreationTimestamp
 	@Temporal(TemporalType.TIMESTAMP)
+	@DateTimeFormat(pattern="yyyy-MM-dd h:i:s")
 	private Date createDate;
 
 	public Database() {}

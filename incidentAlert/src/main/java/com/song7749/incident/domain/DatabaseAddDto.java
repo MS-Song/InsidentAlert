@@ -11,47 +11,76 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.Length;
 import org.springframework.boot.jdbc.DatabaseDriver;
+import org.springframework.format.annotation.DateTimeFormat;
 
-import com.song7749.base.AbstractDto;
+import com.song7749.base.BaseObject;
+import com.song7749.base.Dto;
 import com.song7749.incident.type.Charset;
 
-public class DatabaseAddDto extends AbstractDto {
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiParam;
+
+@ApiModel("데이터베이스 입력 모델")
+public class DatabaseAddDto extends BaseObject implements Dto{
 
 	private static final long serialVersionUID = 2469669840827588753L;
 
 	@Length(max=120)
 	@NotBlank
+	@ApiParam(value="Database Host Name (IP Adress OR Domain)"
+				,example="127.0.0.1 or db.song7749.com"
+				,required=true)
 	private String host;
 
 	@Length(max=120)
 	@NotBlank
+	@ApiParam(value="Database Host Alias"
+				,example=" XXX Service Test / XXX Service Production ..."
+				,required=true)
 	private String hostAlias;
 
 	@Length(max=120)
 	@NotBlank
+	@ApiParam(value="Database Schema(Mysql), SID(Oracle)... "
+				,required=true)
 	private String schemaName;
 
 	@Length(max=60)
 	@NotBlank
+	@ApiParam(value="Database Account"
+				,required=true)
 	private String account;
 
 	@Length(min=4,max=20)
 	@NotBlank
+	@ApiParam(value="Database Password"
+				,required=true
+				,format="password")
 	private String password;
 
 	@Enumerated(EnumType.STRING)
 	@NotNull
+	@ApiParam(required=true)
 	private DatabaseDriver driver;
 
 	@Enumerated(EnumType.STRING)
 	@NotNull
+	@ApiParam(required=true)
 	private Charset charset;
 
 	@Length(max=5)
 	@NotBlank
+	@ApiParam(value="Database Connect Port"
+				,required=true)
 	private String port;
 
 	@Temporal(TemporalType.TIMESTAMP)
+	@DateTimeFormat(pattern="yyyy-MM-dd h:i:s")
+	@ApiParam(value="not input be create server"
+			,example="yyyy-MM-dd h:i:s"
+			,format="date-time"
+			,type="java.util.Date"
+			,hidden=true)
 	private Date createDate;
 
 	public DatabaseAddDto() {}

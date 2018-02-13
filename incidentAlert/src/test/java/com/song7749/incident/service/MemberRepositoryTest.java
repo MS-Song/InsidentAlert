@@ -18,7 +18,9 @@ import com.song7749.incident.domain.Member;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
-@ComponentScan("com.song7749")
+@ComponentScan({"com.song7749.incident.aop"
+	,"com.song7749.incident.config"
+	,"com.song7749.incident.service"})
 public class MemberRepositoryTest {
 
 	@Autowired

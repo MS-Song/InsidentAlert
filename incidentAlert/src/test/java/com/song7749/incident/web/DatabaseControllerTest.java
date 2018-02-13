@@ -1,5 +1,6 @@
 package com.song7749.incident.web;
 
+import static com.song7749.util.LogMessageFormatter.format;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -9,6 +10,8 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.DatabaseDriver;
 import org.springframework.http.MediaType;
@@ -21,6 +24,8 @@ import com.song7749.incident.type.Charset;
 
 public class DatabaseControllerTest extends ControllerTest{
 
+	Logger logger = LoggerFactory.getLogger(getClass());
+
 	@Autowired
 	private MockMvc mvc;
 
@@ -29,6 +34,7 @@ public class DatabaseControllerTest extends ControllerTest{
 	MvcResult result;
 	Map<String, Object> responseObject;
 
+	@SuppressWarnings("unchecked")
 	@Test
 	public void testDatabaseAdd() throws Exception {
 		drb=post("/database/add").accept(MediaType.APPLICATION_JSON).locale(Locale.KOREA)
@@ -51,9 +57,7 @@ public class DatabaseControllerTest extends ControllerTest{
 
 		 responseObject = new ObjectMapper().readValue(result.getResponse().getContentAsString(),HashMap.class);
 
-//		 assertThat(responseObject.get("status"), notNullValue());
-//		 assertThat((Integer)responseObject.get("status"), is(200));
-//		 assertThat(responseObject.get("result"), notNullValue());
+		 logger.trace(format("{}", "Log Message"),responseObject);
 	}
 
 }

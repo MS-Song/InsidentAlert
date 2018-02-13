@@ -21,7 +21,9 @@ import com.song7749.incident.type.Charset;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
-@ComponentScan("com.song7749")
+@ComponentScan({"com.song7749.incident.aop"
+	,"com.song7749.incident.config"
+	,"com.song7749.incident.service"})
 public class DatabaseServiceTest {
 
 	@Autowired

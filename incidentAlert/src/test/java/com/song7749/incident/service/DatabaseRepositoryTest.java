@@ -15,16 +15,16 @@ import org.springframework.boot.jdbc.DatabaseDriver;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.song7749.incident.domain.Database;
 import com.song7749.incident.type.Charset;
 
-@ActiveProfiles("test")
 @RunWith(SpringRunner.class)
 @DataJpaTest
-@ComponentScan("com.song7749")
+@ComponentScan({"com.song7749.incident.aop"
+	,"com.song7749.incident.config"
+	,"com.song7749.incident.service"})
 public class DatabaseRepositoryTest {
 
 	Logger logger = LoggerFactory.getLogger(getClass());

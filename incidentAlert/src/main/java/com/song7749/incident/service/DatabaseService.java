@@ -1,8 +1,10 @@
 package com.song7749.incident.service;
 
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.song7749.incident.domain.Database;
 import com.song7749.incident.domain.DatabaseAddDto;
@@ -27,7 +29,7 @@ import com.song7749.incident.validate.Validate;
 */
 
 @Service
-public class DatabaseService {
+public class DatabaseService{
 
 	@Autowired
 	DatabaseRepository databaseRepository;
@@ -36,11 +38,13 @@ public class DatabaseService {
 	ModelMapper mapper;
 
 	@Validate
+	@Transactional
 	public Database addDatabase(DatabaseAddDto dto) {
 		return databaseRepository.saveAndFlush(mapper.map(dto, Database.class));
 	}
 
 	@Validate
+	@Transactional
 	public Database modifyDatabase(DatabaseModifyDto dto) {
 		return databaseRepository.saveAndFlush(mapper.map(dto, Database.class));
 	}

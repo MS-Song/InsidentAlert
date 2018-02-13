@@ -4,8 +4,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -14,6 +17,10 @@ import com.song7749.incident.domain.Database;
 import com.song7749.incident.domain.DatabaseAddDto;
 import com.song7749.incident.service.DatabaseService;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+
+@Api(tags="데이터베이스 정보 관리")
 @RestController
 @RequestMapping("/database")
 public class DatabaseController {
@@ -21,6 +28,7 @@ public class DatabaseController {
 	@Autowired
 	DatabaseService databaseService;
 
+	@ApiOperation(value="데이터베이스 정보 입력",response=Database.class)
 	@PostMapping("/add")
 	@ResponseBody
 	public  Database addDatabase(@ModelAttribute DatabaseAddDto dto,
@@ -30,17 +38,17 @@ public class DatabaseController {
 
 	}
 
-	@RequestMapping("/modify")
+	@PutMapping("/modify")
 	public void modifyDatabase() {
 
 	}
 
-	@RequestMapping("/delete")
+	@DeleteMapping("/delete")
 	public void deleteDatabase() {
 
 	}
 
-	@RequestMapping("/list")
+	@GetMapping("/list")
 	public String index(){
 		return "index";
 	}

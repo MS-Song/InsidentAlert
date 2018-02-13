@@ -15,6 +15,7 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
@@ -23,6 +24,7 @@ import com.song7749.incident.validate.ValidateGroupBase;
 
 @Component
 @Aspect
+@EnableAspectJAutoProxy(proxyTargetClass=true)
 public class ValidateJpaAop {
 
 	Logger logger = LoggerFactory.getLogger(getClass());
@@ -32,15 +34,13 @@ public class ValidateJpaAop {
 	 */
 	protected Validator validatorFactoryBean= new LocalValidatorFactoryBean();
 
-    //@Pointcut("execution(* com.song7749.*.*.*(..))")
-	//@Pointcut("@within(com.song7749.util.validate.Validate) ")
-	//@Pointcut("@target(com.song7749.util.validate.Validate)")
-	//@Pointcut("@annotation(com.song7749.util.validate.Validate)")
-	// TODO Annotation 기반으로 PointCut 동작 되도록 패치 준비
     @Pointcut("this(org.springframework.data.repository.Repository)")
-    public void hasAnnotationValidate() {}
+    public void isRepository() {}
 
-	@Around("hasAnnotationValidate()")
+    @Pointcut("@annotation(com.song7749.incident.validate.Validate)")
+    public void hasValidateAnnotation() {}
+
+	@Around("isRepository() || hasValidateAnnotation()")
 	public Object validateJpaAop(ProceedingJoinPoint joinPoint) throws Throwable {
 
 		MethodSignature signature = (MethodSignature) joinPoint.getSignature();

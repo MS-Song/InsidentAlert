@@ -38,7 +38,7 @@ public @interface Validate {
 	boolean nullable() default false;
 	/**
 	 * validate group
-	 * @return DanawaValidateGroup
+	 * @return ValidateGroup
 	 */
 	Class<? extends ValidateGroupBase>[] VG() default {};
 
