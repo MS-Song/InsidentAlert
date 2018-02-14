@@ -1,67 +1,49 @@
-package com.song7749.incident.domain;
+package com.song7749.incident.value;
 
 import java.util.Date;
 
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-
-import org.hibernate.validator.constraints.Length;
 import org.springframework.boot.jdbc.DatabaseDriver;
+import org.springframework.format.annotation.DateTimeFormat;
 
-import com.song7749.base.AbstractDto;
+import com.song7749.base.BaseObject;
+import com.song7749.base.Vo;
 import com.song7749.incident.type.Charset;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
-public class DatabaseModifyDto extends AbstractDto {
+@ApiModel("데이터베이스 연결 정보")
+public class DatabaseVo extends BaseObject implements Vo {
 
-	private static final long serialVersionUID = -6233451074229529873L;
+	private static final long serialVersionUID = 2469669840827588753L;
 
-	@NotNull
-	@Min(1L)
+	@ApiModelProperty(value = "Database Info ID")
 	private Long id;
 
-	@Length(max=120)
-	@NotBlank
+	@ApiModelProperty("Database Host Name (IP Adress OR Domain)")
 	private String host;
 
-	@Length(max=120)
-	@NotBlank
+	@ApiModelProperty("Database Host Alias")
 	private String hostAlias;
 
-	@Length(max=120)
-	@NotBlank
+	@ApiModelProperty("Database Schema(Mysql), SID(Oracle)... ")
 	private String schemaName;
 
-	@Length(max=60)
-	@NotBlank
+	@ApiModelProperty("Database Account")
 	private String account;
 
-	@Length(min=4,max=20)
-	@NotBlank
-	private String password;
-
-	@Enumerated(EnumType.STRING)
-	@NotNull
+	@ApiModelProperty("Database Driver Selection")
 	private DatabaseDriver driver;
 
-	@Enumerated(EnumType.STRING)
-	@NotNull
+	@ApiModelProperty("Database Connnect Charicter Set")
 	private Charset charset;
 
-	@Length(max=5)
-	@NotBlank
+	@ApiModelProperty("Database Connect Port")
 	private String port;
 
-	@Temporal(TemporalType.TIMESTAMP)
+	@DateTimeFormat(pattern = "yyyy-MM-dd h:i:s")
+	@ApiModelProperty(value = "Create Date-Time")
 	private Date createDate;
-
-	public DatabaseModifyDto() {}
-
 
 	/**
 	 * @param id
@@ -69,119 +51,83 @@ public class DatabaseModifyDto extends AbstractDto {
 	 * @param hostAlias
 	 * @param schemaName
 	 * @param account
-	 * @param password
 	 * @param driver
 	 * @param charset
 	 * @param port
+	 * @param createDate
 	 */
-	public DatabaseModifyDto(
-			 Long id,
-			 String host,
-			 String hostAlias,
-			 String schemaName,
-			 String account,
-			 String password,
-			 DatabaseDriver driver,
-			 Charset charset,
-			 String port,
-			 Date createDate) {
-		super();
+	public DatabaseVo(Long id, String host, String hostAlias, String schemaName, String account, DatabaseDriver driver,
+			Charset charset, String port, Date createDate) {
 		this.id = id;
 		this.host = host;
 		this.hostAlias = hostAlias;
 		this.schemaName = schemaName;
 		this.account = account;
-		this.password = password;
 		this.driver = driver;
 		this.charset = charset;
 		this.port = port;
-		this.createDate=createDate;
+		this.createDate = createDate;
 	}
 
 	public Long getId() {
 		return id;
 	}
 
-
 	public void setId(Long id) {
 		this.id = id;
 	}
-
 
 	public String getHost() {
 		return host;
 	}
 
-
 	public void setHost(String host) {
 		this.host = host;
 	}
-
 
 	public String getHostAlias() {
 		return hostAlias;
 	}
 
-
 	public void setHostAlias(String hostAlias) {
 		this.hostAlias = hostAlias;
 	}
-
 
 	public String getSchemaName() {
 		return schemaName;
 	}
 
-
 	public void setSchemaName(String schemaName) {
 		this.schemaName = schemaName;
 	}
-
 
 	public String getAccount() {
 		return account;
 	}
 
-
 	public void setAccount(String account) {
 		this.account = account;
 	}
-
-
-	public String getPassword() {
-		return password;
-	}
-
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
 
 	public DatabaseDriver getDriver() {
 		return driver;
 	}
 
-
 	public void setDriver(DatabaseDriver driver) {
 		this.driver = driver;
 	}
-
 
 	public Charset getCharset() {
 		return charset;
 	}
 
-
 	public void setCharset(Charset charset) {
 		this.charset = charset;
 	}
 
-
 	public String getPort() {
 		return port;
 	}
-
 
 	public void setPort(String port) {
 		this.port = port;
@@ -190,7 +136,6 @@ public class DatabaseModifyDto extends AbstractDto {
 	public Date getCreateDate() {
 		return createDate;
 	}
-
 
 	public void setCreateDate(Date createDate) {
 		this.createDate = createDate;

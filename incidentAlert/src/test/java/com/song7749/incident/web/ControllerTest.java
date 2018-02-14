@@ -1,5 +1,6 @@
 package com.song7749.incident.web;
 
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.core.AutoConfigureCache;
@@ -39,6 +40,7 @@ import org.springframework.transaction.annotation.Transactional;
 @AutoConfigureTestEntityManager
 @ImportAutoConfiguration
 @ComponentScan("com.song7749")
+@Ignore
 public class ControllerTest {
 
 }

@@ -4,6 +4,7 @@ import static com.song7749.util.LogMessageFormatter.format;
 
 import java.lang.reflect.Method;
 import java.util.Set;
+import java.util.StringJoiner;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
@@ -15,9 +16,9 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.stereotype.Component;
-import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 import com.song7749.incident.validate.Validate;
 import com.song7749.incident.validate.ValidateGroupBase;
@@ -32,7 +33,8 @@ public class ValidateJpaAop {
 	/**
 	 * validator 설정
 	 */
-	protected Validator validatorFactoryBean= new LocalValidatorFactoryBean();
+	@Autowired
+	protected Validator validatorFactoryBean;
 
     @Pointcut("this(org.springframework.data.repository.Repository)")
     public void isRepository() {}
@@ -74,7 +76,13 @@ public class ValidateJpaAop {
 				for(Object o:joinPoint.getArgs()){
 					// parameter is not null and object us null
 					if(validate.nullable() == false && o == null){
-						throw new IllegalArgumentException(" parameter is not null");
+						// 파라메터 중에 null 이 있는 것으로 간주하고, null 입력에 대한 안내를 한다.
+						StringJoiner joiner = new StringJoiner(",");
+						for(Class<?> cl : signature.getParameterTypes()) {
+							joiner.add(cl.getName());
+						}
+
+						throw new IllegalArgumentException(joiner.toString() + " must be not null");
 					}
 
 					Set<ConstraintViolation<Object>> cv= null;
@@ -115,8 +123,8 @@ public class ValidateJpaAop {
 						for(ConstraintViolation<?> c:cv){
 							// 프록시 객체에서 발생한 에러를 건너뛴
 							if(c.getRootBeanClass().getName().indexOf("_$$_javassist_")==-1){
-								logger.trace(format("{} , 입력값 : {}","Validate Exception"),c.getPropertyPath() + " 은(는) " + c.getMessage(),c.getInvalidValue());
-								throw new IllegalArgumentException(c.getPropertyPath() + "= 은(는) " + c.getMessage());
+								logger.trace(format("{} , 입력값 : {}","Validate Exception"),c.getPropertyPath() + " 은(는)(=) " + c.getMessage(),c.getInvalidValue());
+								throw new IllegalArgumentException(c.getPropertyPath() + " 은(는)(=) " + c.getMessage());
 							}
 						}
 					}
@@ -127,7 +135,7 @@ public class ValidateJpaAop {
 		try {
 			return joinPoint.proceed();
 		} catch (javax.validation.ConstraintViolationException e) {
-			throw new IllegalArgumentException(e.getConstraintViolations().iterator().next().getPropertyPath() + " 은(는) " + e.getConstraintViolations().iterator().next().getMessage());
+			throw new IllegalArgumentException(e.getConstraintViolations().iterator().next().getPropertyPath() + " 은(는)(=) " + e.getConstraintViolations().iterator().next().getMessage());
 		}
 	}
 }

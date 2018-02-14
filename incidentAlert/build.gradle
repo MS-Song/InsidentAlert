@@ -47,3 +47,20 @@ dependencies {
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 	testCompile('org.springframework.restdocs:spring-restdocs-mockmvc')
 }
+
+// Server Profile - local / dev / production
+final String DEFAULT_PROFILE = 'local'
+
+allprojects {
+	if (!project.hasProperty('profile') || !profile) {
+		ext.profile = DEFAULT_PROFILE
+	}
+
+	sourceSets {
+		main {
+			resources {
+				srcDir "src/main/resources-${profile}"
+			}
+		}
+	}
+}

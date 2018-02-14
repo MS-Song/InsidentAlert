@@ -1,4 +1,4 @@
-package com.song7749.incident.domain;
+package com.song7749.incident.value;
 
 import java.util.Date;
 
@@ -6,87 +6,65 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.Length;
 import org.springframework.boot.jdbc.DatabaseDriver;
-import org.springframework.format.annotation.DateTimeFormat;
 
-import com.song7749.base.BaseObject;
-import com.song7749.base.Dto;
+import com.song7749.base.AbstractDto;
 import com.song7749.incident.type.Charset;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiParam;
 
-@ApiModel("데이터베이스 입력 모델")
-public class DatabaseAddDto extends BaseObject implements Dto{
+public class DatabaseModifyDto extends AbstractDto {
 
-	private static final long serialVersionUID = 2469669840827588753L;
+	private static final long serialVersionUID = -6233451074229529873L;
+
+	@NotNull
+	@Min(1L)
+	private Long id;
 
 	@Length(max=120)
 	@NotBlank
-	@ApiParam(value="Database Host Name (IP Adress OR Domain)"
-				,example="127.0.0.1 or db.song7749.com"
-				,required=true)
 	private String host;
 
 	@Length(max=120)
 	@NotBlank
-	@ApiParam(value="Database Host Alias"
-				,example=" XXX Service Test / XXX Service Production ..."
-				,required=true)
 	private String hostAlias;
 
 	@Length(max=120)
 	@NotBlank
-	@ApiParam(value="Database Schema(Mysql), SID(Oracle)... "
-				,required=true)
 	private String schemaName;
 
 	@Length(max=60)
 	@NotBlank
-	@ApiParam(value="Database Account"
-				,required=true)
 	private String account;
 
 	@Length(min=4,max=20)
 	@NotBlank
-	@ApiParam(value="Database Password"
-				,required=true
-				,format="password")
 	private String password;
 
 	@Enumerated(EnumType.STRING)
 	@NotNull
-	@ApiParam(required=true)
 	private DatabaseDriver driver;
 
 	@Enumerated(EnumType.STRING)
 	@NotNull
-	@ApiParam(required=true)
 	private Charset charset;
 
 	@Length(max=5)
 	@NotBlank
-	@ApiParam(value="Database Connect Port"
-				,required=true)
 	private String port;
 
 	@Temporal(TemporalType.TIMESTAMP)
-	@DateTimeFormat(pattern="yyyy-MM-dd h:i:s")
-	@ApiParam(value="not input be create server"
-			,example="yyyy-MM-dd h:i:s"
-			,format="date-time"
-			,type="java.util.Date"
-			,hidden=true)
 	private Date createDate;
 
-	public DatabaseAddDto() {}
+	public DatabaseModifyDto() {}
 
 
 	/**
+	 * @param id
 	 * @param host
 	 * @param hostAlias
 	 * @param schemaName
@@ -96,7 +74,8 @@ public class DatabaseAddDto extends BaseObject implements Dto{
 	 * @param charset
 	 * @param port
 	 */
-	public DatabaseAddDto(
+	public DatabaseModifyDto(
+			 Long id,
 			 String host,
 			 String hostAlias,
 			 String schemaName,
@@ -106,6 +85,8 @@ public class DatabaseAddDto extends BaseObject implements Dto{
 			 Charset charset,
 			 String port,
 			 Date createDate) {
+		super();
+		this.id = id;
 		this.host = host;
 		this.hostAlias = hostAlias;
 		this.schemaName = schemaName;
@@ -115,6 +96,15 @@ public class DatabaseAddDto extends BaseObject implements Dto{
 		this.charset = charset;
 		this.port = port;
 		this.createDate=createDate;
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+
+	public void setId(Long id) {
+		this.id = id;
 	}
 
 
@@ -196,7 +186,6 @@ public class DatabaseAddDto extends BaseObject implements Dto{
 	public void setPort(String port) {
 		this.port = port;
 	}
-
 
 	public Date getCreateDate() {
 		return createDate;

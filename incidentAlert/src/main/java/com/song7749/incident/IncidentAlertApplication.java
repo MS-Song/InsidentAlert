@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 
 @SpringBootApplication(scanBasePackages= {"com.song7749"})
@@ -27,6 +28,11 @@ public class IncidentAlertApplication {
 	@Bean
 	public ModelMapper modelMapper() {
 	  return new ModelMapper();
+	}
+
+	@Bean
+	public LocalValidatorFactoryBean localValidatorFactoryBean() {
+		return new LocalValidatorFactoryBean();
 	}
 
 	public static void main(String[] args) {

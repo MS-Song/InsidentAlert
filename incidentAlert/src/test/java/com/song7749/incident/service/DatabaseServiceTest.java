@@ -16,8 +16,8 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.song7749.incident.domain.Database;
-import com.song7749.incident.domain.DatabaseAddDto;
 import com.song7749.incident.type.Charset;
+import com.song7749.incident.value.DatabaseAddDto;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest

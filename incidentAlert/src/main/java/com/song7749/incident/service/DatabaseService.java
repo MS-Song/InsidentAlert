@@ -7,9 +7,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.song7749.incident.domain.Database;
-import com.song7749.incident.domain.DatabaseAddDto;
-import com.song7749.incident.domain.DatabaseModifyDto;
 import com.song7749.incident.validate.Validate;
+import com.song7749.incident.value.DatabaseAddDto;
+import com.song7749.incident.value.DatabaseModifyDto;
 
 /**
  * <pre>

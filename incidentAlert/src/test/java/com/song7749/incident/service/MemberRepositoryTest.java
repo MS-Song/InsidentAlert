@@ -29,21 +29,21 @@ public class MemberRepositoryTest {
 	/**
 	 * fixture
 	 */
-	Member member = new Member("song7749@gmail.com", "1234",
+	Member member = new Member("song7749@gmail.com", "12345678",
 			"any team", "minsoo", new Date(), new Date());
 
 	@Test
 	public void tesetSave() {
 		//give
 		//when
-		Member m1 = memberRepository.save(member);
+		Member m1 = memberRepository.saveAndFlush(member);
 		//then
 		assertThat(m1.getId(),notNullValue());
 
 		//give
 		m1.setName("Song");
 		//when
-		Member m2 = memberRepository.save(m1);
+		Member m2 = memberRepository.saveAndFlush(m1);
 		//then
 		assertThat(m1.getName(),equalTo(m2.getName()));
 

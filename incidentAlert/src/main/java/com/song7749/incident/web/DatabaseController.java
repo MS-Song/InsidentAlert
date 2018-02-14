@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.song7749.incident.domain.Database;
-import com.song7749.incident.domain.DatabaseAddDto;
 import com.song7749.incident.service.DatabaseService;
+import com.song7749.incident.value.DatabaseAddDto;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
