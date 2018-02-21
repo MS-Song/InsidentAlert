@@ -1,10 +1,9 @@
 package com.song7749.incident.validate;
 
-
 /**
  * <pre>
- * Class Name : ValidateGroupDelete.java
- * Description : Validate Group Delete
+ * Class Name : UpdateGroup.java
+ * Description : Validate Group Update
  *
  *  Modification Information
  *  Modify Date 		Modifier	Comment
@@ -17,4 +16,4 @@ package com.song7749.incident.validate;
  * @since 2014. 4. 21.
  */
 
-public interface ValidateGroupDelete extends ValidateGroupBase{}
+public interface UpdateGroup extends BaseGroup{}

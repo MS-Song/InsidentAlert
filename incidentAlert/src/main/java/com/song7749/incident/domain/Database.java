@@ -9,12 +9,13 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.SelectBeforeUpdate;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.boot.jdbc.DatabaseDriver;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -40,11 +41,14 @@ import com.song7749.incident.type.Charset;
 */
 
 @Entity
+@SelectBeforeUpdate(true)
+@DynamicUpdate(true)
 public class Database extends Entities{
 
 	private static final long serialVersionUID = 8561337661359215895L;
 
 	@Id
+	@Column(nullable=false,updatable = false)
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 
@@ -70,6 +74,7 @@ public class Database extends Entities{
 
 	@Column(nullable=false)
 	@Length(min=4,max=20)
+	@NotBlank
 	private String password;
 
 	@Column(nullable=false)
@@ -87,11 +92,15 @@ public class Database extends Entities{
 	@NotBlank
 	private String port;
 
-	@Column(nullable=false)
+	@Column(nullable=false,updatable = false)
 	@CreationTimestamp
-	@Temporal(TemporalType.TIMESTAMP)
 	@DateTimeFormat(pattern="yyyy-MM-dd h:i:s")
 	private Date createDate;
+
+	@Column(nullable=true)
+	@UpdateTimestamp
+	@DateTimeFormat(pattern="yyyy-MM-dd h:i:s")
+	private Date modifyDate;
 
 	public Database() {}
 
@@ -116,8 +125,7 @@ public class Database extends Entities{
 			 String password,
 			 DatabaseDriver driver,
 			 Charset charset,
-			 String port,
-			 Date createDate) {
+			 String port) {
 		super();
 		this.id = id;
 		this.host = host;
@@ -128,7 +136,6 @@ public class Database extends Entities{
 		this.driver = driver;
 		this.charset = charset;
 		this.port = port;
-		this.createDate=createDate;
 	}
 
 
@@ -150,8 +157,7 @@ public class Database extends Entities{
 			String password,
 			DatabaseDriver driver,
 			Charset charset,
-			String port,
-			Date createDate) {
+			String port) {
 		super();
 		this.host = host;
 		this.hostAlias = hostAlias;
@@ -161,9 +167,7 @@ public class Database extends Entities{
 		this.driver = driver;
 		this.charset = charset;
 		this.port = port;
-		this.createDate=createDate;
 	}
-
 
 	public Long getId() {
 		return id;
@@ -261,5 +265,15 @@ public class Database extends Entities{
 
 	public void setCreateDate(Date createDate) {
 		this.createDate = createDate;
+	}
+
+
+	public Date getModifyDate() {
+		return modifyDate;
+	}
+
+
+	public void setModifyDate(Date modifyDate) {
+		this.modifyDate = modifyDate;
 	}
 }

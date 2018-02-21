@@ -4,9 +4,9 @@ import javax.validation.groups.Default;
 
 /**
  * <pre>
- * Class Name : ValidateGroupBase.java .<br/>
- * Description : ValidateGroupBase 객체 .<br/>
- * 모든 ValidateGroup 객체는이 객체를 상속해야 한다.<br/>
+ * Class Name : BaseGroup.java .<br/>
+ * Description : BaseGroup 객체 .<br/>
+ * 모든 Validate Group 객체는이 객체를 상속해야 한다.<br/>
  *
  *
  *  Modification Information
@@ -20,4 +20,4 @@ import javax.validation.groups.Default;
  * @since 2014. 3. 24.
  */
 
-public interface ValidateGroupBase extends Default {}
+public interface BaseGroup extends Default {}

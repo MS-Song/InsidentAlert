@@ -1,23 +1,19 @@
 package com.song7749.incident.value;
 
-import java.util.Date;
-
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.Length;
 import org.springframework.boot.jdbc.DatabaseDriver;
 
-import com.song7749.base.AbstractDto;
+import com.song7749.base.BaseObject;
+import com.song7749.base.Dto;
 import com.song7749.incident.type.Charset;
 
 
-public class DatabaseModifyDto extends AbstractDto {
+public class DatabaseModifyDto extends BaseObject implements Dto {
 
 	private static final long serialVersionUID = -6233451074229529873L;
 
@@ -26,39 +22,28 @@ public class DatabaseModifyDto extends AbstractDto {
 	private Long id;
 
 	@Length(max=120)
-	@NotBlank
 	private String host;
 
 	@Length(max=120)
-	@NotBlank
 	private String hostAlias;
 
 	@Length(max=120)
-	@NotBlank
 	private String schemaName;
 
 	@Length(max=60)
-	@NotBlank
 	private String account;
 
 	@Length(min=4,max=20)
-	@NotBlank
 	private String password;
 
 	@Enumerated(EnumType.STRING)
-	@NotNull
 	private DatabaseDriver driver;
 
 	@Enumerated(EnumType.STRING)
-	@NotNull
 	private Charset charset;
 
 	@Length(max=5)
-	@NotBlank
 	private String port;
-
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date createDate;
 
 	public DatabaseModifyDto() {}
 
@@ -83,8 +68,7 @@ public class DatabaseModifyDto extends AbstractDto {
 			 String password,
 			 DatabaseDriver driver,
 			 Charset charset,
-			 String port,
-			 Date createDate) {
+			 String port) {
 		super();
 		this.id = id;
 		this.host = host;
@@ -95,7 +79,6 @@ public class DatabaseModifyDto extends AbstractDto {
 		this.driver = driver;
 		this.charset = charset;
 		this.port = port;
-		this.createDate=createDate;
 	}
 
 	public Long getId() {
@@ -185,14 +168,5 @@ public class DatabaseModifyDto extends AbstractDto {
 
 	public void setPort(String port) {
 		this.port = port;
-	}
-
-	public Date getCreateDate() {
-		return createDate;
-	}
-
-
-	public void setCreateDate(Date createDate) {
-		this.createDate = createDate;
 	}
 }

@@ -21,7 +21,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.stereotype.Component;
 
 import com.song7749.incident.validate.Validate;
-import com.song7749.incident.validate.ValidateGroupBase;
+import com.song7749.incident.validate.BaseGroup;
 
 @Component
 @Aspect
@@ -58,7 +58,7 @@ public class ValidateJpaAop {
 						invocation.getName()
 						,String.valueOf(invocation.getParameterCount())
 				};
-				logger.trace(format("mehtod : {}\nparamsize:{}", "Validate AOP"),log);
+				//logger.trace(format("mehtod : {}\nparamsize:{}", "Validate AOP"),log);
 			}
 
 
@@ -68,7 +68,7 @@ public class ValidateJpaAop {
 				validate = invocation.getAnnotation(Validate.class);
 
 				// validate group
-				Class<? extends ValidateGroupBase>[] baseList=validate.VG();
+				Class<? extends BaseGroup>[] baseList=validate.group();
 				// property has
 				String[] properties = validate.property();
 
@@ -118,7 +118,9 @@ public class ValidateJpaAop {
 							cv=validatorFactoryBean.validate(o,baseList);
 						}
 					}
-					logger.trace(format("{}", "Log Message"),cv);
+
+					//logger.trace(format("{}", "Log Message"),cv);
+
 					if(null!=cv && cv.size()>0){
 						for(ConstraintViolation<?> c:cv){
 							// 프록시 객체에서 발생한 에러를 건너뛴

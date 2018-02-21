@@ -5,45 +5,54 @@ import java.util.Date;
 import org.springframework.boot.jdbc.DatabaseDriver;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import com.song7749.base.BaseObject;
-import com.song7749.base.Vo;
+import com.song7749.base.AbstractVo;
 import com.song7749.incident.type.Charset;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 @ApiModel("데이터베이스 연결 정보")
-public class DatabaseVo extends BaseObject implements Vo {
+public class DatabaseVo extends AbstractVo {
 
 	private static final long serialVersionUID = 2469669840827588753L;
 
-	@ApiModelProperty(value = "Database Info ID")
+	@ApiModelProperty(value = "ID")
 	private Long id;
 
-	@ApiModelProperty("Database Host Name (IP Adress OR Domain)")
+	@ApiModelProperty("Host Name")
 	private String host;
 
-	@ApiModelProperty("Database Host Alias")
+	@ApiModelProperty("Host Alias")
 	private String hostAlias;
 
-	@ApiModelProperty("Database Schema(Mysql), SID(Oracle)... ")
+	@ApiModelProperty("Schema(SID)")
 	private String schemaName;
 
-	@ApiModelProperty("Database Account")
+	@ApiModelProperty("Account")
 	private String account;
 
-	@ApiModelProperty("Database Driver Selection")
+	@ApiModelProperty("Password")
+	private String password;
+
+	@ApiModelProperty("Driver")
 	private DatabaseDriver driver;
 
-	@ApiModelProperty("Database Connnect Charicter Set")
+	@ApiModelProperty("Charicter Set")
 	private Charset charset;
 
-	@ApiModelProperty("Database Connect Port")
+	@ApiModelProperty("Port")
 	private String port;
 
 	@DateTimeFormat(pattern = "yyyy-MM-dd h:i:s")
-	@ApiModelProperty(value = "Create Date-Time")
+	@ApiModelProperty(value = "Create")
 	private Date createDate;
+
+	@DateTimeFormat(pattern = "yyyy-MM-dd h:i:s")
+	@ApiModelProperty(value = "Modify")
+	private Date modifyDate;
+
+	public DatabaseVo() {}
+
 
 	/**
 	 * @param id
@@ -51,22 +60,26 @@ public class DatabaseVo extends BaseObject implements Vo {
 	 * @param hostAlias
 	 * @param schemaName
 	 * @param account
+	 * @param password
 	 * @param driver
 	 * @param charset
 	 * @param port
 	 * @param createDate
+	 * @param modifyDate
 	 */
-	public DatabaseVo(Long id, String host, String hostAlias, String schemaName, String account, DatabaseDriver driver,
-			Charset charset, String port, Date createDate) {
+	public DatabaseVo(Long id, String host, String hostAlias, String schemaName, String account, String password,
+			DatabaseDriver driver, Charset charset, String port, Date createDate, Date modifyDate) {
 		this.id = id;
 		this.host = host;
 		this.hostAlias = hostAlias;
 		this.schemaName = schemaName;
 		this.account = account;
+		this.password = password;
 		this.driver = driver;
 		this.charset = charset;
 		this.port = port;
 		this.createDate = createDate;
+		this.modifyDate = modifyDate;
 	}
 
 	public Long getId() {
@@ -139,5 +152,23 @@ public class DatabaseVo extends BaseObject implements Vo {
 
 	public void setCreateDate(Date createDate) {
 		this.createDate = createDate;
+	}
+
+	public Date getModifyDate() {
+		return modifyDate;
+	}
+
+	public void setModifyDate(Date modifyDate) {
+		this.modifyDate = modifyDate;
+	}
+
+
+	public String getPassword() {
+		return password;
+	}
+
+
+	public void setPassword(String password) {
+		this.password = password;
 	}
 }

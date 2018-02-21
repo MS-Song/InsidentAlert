@@ -4,7 +4,7 @@ import javax.validation.groups.Default;
 
 /**
  * <pre>
- * Class Name : ValidateGroupInsert.java
+ * Class Name : InsertGroup.java
  * Description : 인서트 Validate Group
  * Default 는 하이버네이트 Validate 에서의 기본 insert 검증과 같다. insert 에 추가해준다.
  *
@@ -19,4 +19,4 @@ import javax.validation.groups.Default;
  * @since 2014. 4. 21.
  */
 
-public interface ValidateGroupInsert extends ValidateGroupBase, Default {}
+public interface InsertGroup extends BaseGroup, Default {}

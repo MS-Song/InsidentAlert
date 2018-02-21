@@ -40,7 +40,7 @@ public @interface Validate {
 	 * validate group
 	 * @return ValidateGroup
 	 */
-	Class<? extends ValidateGroupBase>[] VG() default {};
+	Class<? extends BaseGroup>[] group() default {};
 
 	/**
 	 * param 내의 특정한 필드만 valiate 하고 싶은 경우 사용.<br/>

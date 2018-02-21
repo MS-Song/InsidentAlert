@@ -1,17 +1,12 @@
 package com.song7749.incident.value;
 
-import java.util.Date;
-
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.Length;
 import org.springframework.boot.jdbc.DatabaseDriver;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import com.song7749.base.BaseObject;
 import com.song7749.base.Dto;
@@ -35,7 +30,7 @@ public class DatabaseAddDto extends BaseObject implements Dto{
 	@Length(max=120)
 	@NotBlank
 	@ApiParam(value="Database Host Alias"
-				,example=" XXX Service Test / XXX Service Production ..."
+				,example=" XXX Service Test / XXX Service Production ... ENV Config"
 				,required=true)
 	private String hostAlias;
 
@@ -76,15 +71,6 @@ public class DatabaseAddDto extends BaseObject implements Dto{
 				,required=true)
 	private String port;
 
-	@Temporal(TemporalType.TIMESTAMP)
-	@DateTimeFormat(pattern="yyyy-MM-dd h:i:s")
-	@ApiParam(value="not input be create server"
-			,example="yyyy-MM-dd h:i:s"
-			,format="date-time"
-			,type="java.util.Date"
-			,hidden=true)
-	private Date createDate;
-
 	/**
 	 * @param host
 	 * @param hostAlias
@@ -103,8 +89,7 @@ public class DatabaseAddDto extends BaseObject implements Dto{
 			 String password,
 			 DatabaseDriver driver,
 			 Charset charset,
-			 String port,
-			 Date createDate) {
+			 String port) {
 		this.host = host;
 		this.hostAlias = hostAlias;
 		this.schemaName = schemaName;
@@ -113,7 +98,6 @@ public class DatabaseAddDto extends BaseObject implements Dto{
 		this.driver = driver;
 		this.charset = charset;
 		this.port = port;
-		this.createDate=createDate;
 	}
 
 
@@ -194,15 +178,5 @@ public class DatabaseAddDto extends BaseObject implements Dto{
 
 	public void setPort(String port) {
 		this.port = port;
-	}
-
-
-	public Date getCreateDate() {
-		return createDate;
-	}
-
-
-	public void setCreateDate(Date createDate) {
-		this.createDate = createDate;
 	}
 }

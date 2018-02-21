@@ -2,9 +2,8 @@ package com.song7749.incident.service;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
-
-import java.util.Date;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,8 +41,7 @@ public class DatabaseRepositoryTest {
 			, "12345678"
 			, DatabaseDriver.H2
 			, Charset.UTF8
-			, "3333",
-			new Date());
+			, "3333");
 
 	@Test(expected=InvalidDataAccessApiUsageException.class)
 	public void testSaveGivenNull() {
@@ -71,6 +69,12 @@ public class DatabaseRepositoryTest {
 		//than
 		assertThat(ds.getId(),notNullValue());
 
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		//give
 		ds.setHost("10.200.200.200");
 		ds.setCharset(Charset.EUCKR);
@@ -80,5 +84,11 @@ public class DatabaseRepositoryTest {
 		assertThat(dsi.getId(),equalTo(ds.getId()));
 		assertThat(dsi.getHost(),equalTo(ds.getHost()));
 		assertThat(dsi.getCharset(),equalTo(ds.getCharset()));
+
+		databaseRepository.deleteById(dsi.getId());
+		databaseRepository.flush();
+
+		assertFalse(databaseRepository.existsById(dsi.getId()));
+
 	}
 }

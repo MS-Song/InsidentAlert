@@ -14,8 +14,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.song7749.incident.domain.Database;
-import com.song7749.incident.service.DatabaseService;
+import com.song7749.incident.service.DatabaseManager;
 import com.song7749.incident.value.DatabaseAddDto;
+import com.song7749.incident.value.DatabaseVo;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -26,15 +27,15 @@ import io.swagger.annotations.ApiOperation;
 public class DatabaseController {
 
 	@Autowired
-	DatabaseService databaseService;
+	DatabaseManager databaseManager;
 
 	@ApiOperation(value="데이터베이스 정보 입력",response=Database.class)
 	@PostMapping("/add")
 	@ResponseBody
-	public  Database addDatabase(@ModelAttribute DatabaseAddDto dto,
+	public  DatabaseVo addDatabase(@ModelAttribute DatabaseAddDto dto,
 			HttpServletRequest request,
 			HttpServletResponse response) {
-		return databaseService.addDatabase(dto);
+		return databaseManager.addDatabase(dto);
 
 	}
 
