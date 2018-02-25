@@ -9,8 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.song7749.incident.annotation.Validate;
 import com.song7749.incident.domain.Database;
-import com.song7749.incident.validate.Validate;
 import com.song7749.incident.value.DatabaseAddDto;
 import com.song7749.incident.value.DatabaseModifyDto;
 import com.song7749.incident.value.DatabaseVo;
@@ -62,7 +62,7 @@ public class DatabaseManager{
 	 */
 	@Validate
 	@Transactional
-	public Integer AddOrModifyDatabaseAll(List<DatabaseModifyDto> dtos) {
+	public Integer AddOrModifyDatabaseFasade(List<DatabaseModifyDto> dtos) {
 		List<Database> databases = new ArrayList<Database>();
 		for(DatabaseModifyDto dto : dtos) {
 			databases.add(mapper.map(dto, Database.class));

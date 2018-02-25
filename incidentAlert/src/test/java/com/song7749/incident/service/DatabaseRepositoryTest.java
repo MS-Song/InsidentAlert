@@ -10,7 +10,6 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.jdbc.DatabaseDriver;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
@@ -18,6 +17,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import com.song7749.incident.domain.Database;
 import com.song7749.incident.type.Charset;
+import com.song7749.incident.type.DatabaseDriver;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
@@ -39,9 +39,10 @@ public class DatabaseRepositoryTest {
 			, "dbTest"
 			, "song7749"
 			, "12345678"
-			, DatabaseDriver.H2
+			, DatabaseDriver.ORACLE
 			, Charset.UTF8
-			, "3333");
+			, "3333"
+			,"");
 
 	@Test(expected=InvalidDataAccessApiUsageException.class)
 	public void testSaveGivenNull() {

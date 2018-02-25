@@ -3,6 +3,8 @@ package com.song7749.incident.web;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,22 +23,22 @@ import com.song7749.incident.value.DatabaseVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
-@Api(tags="데이터베이스 정보 관리")
+@Api(tags = "데이터베이스 정보 관리")
 @RestController
 @RequestMapping("/database")
 public class DatabaseController {
 
+	Logger logger = LoggerFactory.getLogger(getClass());
+
 	@Autowired
 	DatabaseManager databaseManager;
 
-	@ApiOperation(value="데이터베이스 정보 입력",response=Database.class)
+	@ApiOperation(value = "데이터베이스 정보 입력", response = Database.class)
 	@PostMapping("/add")
 	@ResponseBody
-	public  DatabaseVo addDatabase(@ModelAttribute DatabaseAddDto dto,
-			HttpServletRequest request,
+	public DatabaseVo addDatabase(@ModelAttribute DatabaseAddDto dto, HttpServletRequest request,
 			HttpServletResponse response) {
 		return databaseManager.addDatabase(dto);
-
 	}
 
 	@PutMapping("/modify")
@@ -50,7 +52,7 @@ public class DatabaseController {
 	}
 
 	@GetMapping("/list")
-	public String index(){
+	public String list() {
 		return "index";
 	}
 

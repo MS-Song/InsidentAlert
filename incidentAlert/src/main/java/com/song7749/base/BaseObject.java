@@ -2,8 +2,6 @@ package com.song7749.base;
 
 import java.io.Serializable;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
@@ -28,16 +26,6 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 public class BaseObject implements Serializable {
 
 	private static final long serialVersionUID = -9180947676649445554L;
-
-	@Override
-	public boolean equals(Object o) {
-		return EqualsBuilder.reflectionEquals(this, o);
-	}
-
-	@Override
-	public int hashCode() {
-		return HashCodeBuilder.reflectionHashCode(this);
-	}
 
 	@Override
 	public String toString() {

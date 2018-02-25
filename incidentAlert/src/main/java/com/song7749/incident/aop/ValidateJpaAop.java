@@ -20,7 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.stereotype.Component;
 
-import com.song7749.incident.validate.Validate;
+import com.song7749.incident.annotation.Validate;
 import com.song7749.incident.validate.BaseGroup;
 
 @Component
@@ -51,16 +51,6 @@ public class ValidateJpaAop {
 	    // has parameter
 		if(null!=invocation.getParameters()
 				&& invocation.getParameters().length>0){
-
-			// validate write logger
-			if(logger.isTraceEnabled()){
-				Object[] log = {
-						invocation.getName()
-						,String.valueOf(invocation.getParameterCount())
-				};
-				//logger.trace(format("mehtod : {}\nparamsize:{}", "Validate AOP"),log);
-			}
-
 
 			Validate validate=null;
 			// interface has annotation

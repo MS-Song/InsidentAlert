@@ -1,9 +1,12 @@
 package com.song7749.base;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 /**
  * <pre>
  * Class Name : AbstractDto.java
- * Description : 모든 DTO 는 Abstract DTO를 상속 받아야 한다.
+ * Description : 모든 조회성 DTO 는 Abstract DTO를 상속 받아야 한다.
 *
 *
 *  Modification Information
@@ -16,7 +19,7 @@ package com.song7749.base;
  * @author song7749@gmail.com
  * @since 2018. 1. 15.
  */
-public abstract class AbstractDto extends BaseObject implements Dto, Cacheable {
+public abstract class AbstractSearchDto extends BaseObject implements Dto, Cacheable {
 
 	private static final long serialVersionUID = 8863605294397638654L;
 
@@ -81,5 +84,15 @@ public abstract class AbstractDto extends BaseObject implements Dto, Cacheable {
 	@Override
 	public void setUseCache(boolean useCache) {
 		this.useCache = useCache;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		return EqualsBuilder.reflectionEquals(this, o);
+	}
+
+	@Override
+	public int hashCode() {
+		return HashCodeBuilder.reflectionHashCode(this);
 	}
 }
