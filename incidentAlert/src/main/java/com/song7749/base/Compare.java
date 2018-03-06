@@ -22,7 +22,8 @@ public enum Compare {
 	LESS("<"),
 	EQUAL_GRAETE(">="),
 	EQUAL_LESS("<="),
-	EQUAL("=");
+	EQUAL("="),
+	LIKE ("like");
 
 	private final String value;
 

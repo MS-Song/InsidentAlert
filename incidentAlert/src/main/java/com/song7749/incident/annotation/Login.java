@@ -6,8 +6,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.song7749.incident.type.AuthType;
-import com.song7749.incident.type.LoginResponseType;
+import com.song7749.incident.drs.type.AuthType;
+import com.song7749.incident.drs.type.LoginResponseType;
 
 
 @Target({ElementType.TYPE,ElementType.METHOD})

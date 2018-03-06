@@ -9,20 +9,22 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.jdbc.DatabaseDriver;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.song7749.incident.drs.type.Charset;
+import com.song7749.incident.drs.service.MemberManager;
+import com.song7749.incident.drs.value.MemberAddDto;
 
-public class DatabaseControllerTest extends ControllerTest{
+public class MemberLoginCotrollerTest extends ControllerTest{
+
 
 	Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -34,21 +36,30 @@ public class DatabaseControllerTest extends ControllerTest{
 	MvcResult result;
 	Map<String, Object> responseObject;
 
-	@SuppressWarnings("unchecked")
-	@Test
-	public void testDatabaseAdd() throws Exception {
-		drb=post("/database/add").accept(MediaType.APPLICATION_JSON).locale(Locale.KOREA)
-				.param("name", "test")
-				.param("schemaName", "test")
-				.param("host", "test")
-				.param("hostAlias", "test")
-				.param("account", "song7749")
-				.param("password", "1234")
-				.param("port", "3306")
-				.param("driver", DatabaseDriver.H2.toString())
-				.param("charset", Charset.UTF8.toString())
-				;
+	@Autowired
+	MemberManager memberManager;
 
+	// 테스트를 위한 회원 등록
+	MemberAddDto dto = new MemberAddDto(
+			"song12345678@gmail.com",
+			"123456789",
+			"passwordQuestion",
+			"passwordAnswer",
+			"teamName",
+			"name");
+
+	@Before
+	public void setup(){
+		// 테스트를 위한 회원 등록
+		memberManager.addMemeber(dto);
+	}
+
+	@Test
+	public void testDoLogin() throws Exception {
+		drb=post("/member/doLogin").accept(MediaType.APPLICATION_JSON).locale(Locale.KOREA)
+				.param("loginId", dto.getLoginId())
+				.param("password", dto.getPassword())
+				;
 
 		result = mvc.perform(drb)
 				.andExpect(status().isOk())
@@ -58,6 +69,8 @@ public class DatabaseControllerTest extends ControllerTest{
 		 responseObject = new ObjectMapper().readValue(result.getResponse().getContentAsString(),HashMap.class);
 
 		 logger.trace(format("{}", "Log Message"),responseObject);
+
+
 	}
 
 }
