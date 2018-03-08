@@ -1,5 +1,6 @@
 package com.song7749.incident.drs.value;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
@@ -29,8 +30,8 @@ public class LoginDoDTO extends BaseObject implements Dto{
 
 	private static final long serialVersionUID = 2494197854525312202L;
 
+	@Email
 	@NotBlank
-	@Size(min=4,max=20)
 	@ApiModelProperty(value="로그인 id",required=true)
 	private String loginId;
 

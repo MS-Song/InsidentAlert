@@ -2,8 +2,7 @@ package com.song7749.incident.drs.value;
 
 import java.util.Date;
 
-import org.springframework.format.annotation.DateTimeFormat;
-
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.song7749.base.AbstractVo;
 import com.song7749.incident.drs.type.AuthType;
 
@@ -37,15 +36,15 @@ public class MemberVo extends AbstractVo {
 	private AuthType authType;
 
 	@ApiModelProperty("가입일")
-	@DateTimeFormat(pattern = "yyyy-MM-dd h:i:s")
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm:ss")
 	private Date createDate;
 
 	@ApiModelProperty("회원정보 수정일")
-	@DateTimeFormat(pattern = "yyyy-MM-dd h:i:s")
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm:ss")
 	private Date modifyDate;
 
 	@ApiModelProperty("최근 로그인 일시")
-	@DateTimeFormat(pattern = "yyyy-MM-dd h:i:s")
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm:ss")
 	private Date lastLoginDate;
 
 	public MemberVo() {}

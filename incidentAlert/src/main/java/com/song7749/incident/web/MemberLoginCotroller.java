@@ -7,7 +7,6 @@ import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.song7749.base.MessageVo;
 import com.song7749.incident.drs.service.LoginManager;
 import com.song7749.incident.drs.service.MemberManager;
 import com.song7749.incident.drs.value.LoginDoDTO;
@@ -39,44 +39,43 @@ public class MemberLoginCotroller {
 	@Autowired
 	MemberManager memberManager;
 
-	@ApiOperation(value = "회원 로그인",notes = "회원 ID/PASSWORD 를 받아서 로그인 cookie 를 생성 한다.")
+	@ApiOperation(value = "회원 로그인"
+			, notes = "회원 ID/PASSWORD 를 받아서 로그인 cookie 를 생성 한다."
+			, response=MessageVo.class)
 	@PostMapping(value="/doLogin")
 	@ResponseBody
-	public ModelMap doLogin(
-			@Valid @ModelAttribute LoginDoDTO dto,
+	public MessageVo doLogin(
 			HttpServletRequest request,
 			HttpServletResponse response,
-			ModelMap model){
+			@Valid @ModelAttribute LoginDoDTO dto){
 
-		loginManager.doLogin(dto, request, response);
-
-		model.clear();
-		model.addAttribute("message","로그인 처리가 완료되었습니다.");
-		return model;
+		MessageVo vo = null;
+		if(loginManager.doLogin(dto, request, response)) {
+			vo = new MessageVo(HttpServletResponse.SC_OK, "로그인 처리가 완료되었습니다.");
+		} else {
+			vo = new MessageVo(HttpServletResponse.SC_FORBIDDEN, "로그인에 실패 했습니다.");
+		}
+		return vo;
 	}
 
-	@ApiOperation(value = "회원 로그아웃",notes = "로그 아웃 프로세스를 실행한다.")
+	@ApiOperation(value = "회원 로그아웃"
+			, notes = "로그 아웃 프로세스를 실행한다."
+			, response=MessageVo.class)
 	@PostMapping(value="/doLogout")
 	@ResponseBody
-	public ModelMap doLogout(
-			HttpServletRequest request,
-			HttpServletResponse response,
-			ModelMap model){
+	public MessageVo doLogout(HttpServletResponse response){
 
 		loginManager.doLogout(response);
-
-		model.clear();
-		model.addAttribute("message","로그아웃 처리가 완료되었습니다.");
-		return model;
+		return new MessageVo(HttpServletResponse.SC_OK, "로그아웃 처리가 완료되었습니다.");
 	}
 
 
-	@ApiOperation(value = "로그인 정보 획득",notes = "cookie 에 저장되어 있는 로그인 정보를 획득한다.")
+	@ApiOperation(value = "로그인 정보 획득"
+			, notes = "cookie 에 저장되어 있는 로그인 정보를 획득한다."
+			, response=MemberVo.class)
 	@GetMapping(value="/getLogin")
 	@ResponseBody
-	public MemberVo getLogin(
-			HttpServletRequest request,
-			ModelMap model){
+	public MemberVo getLogin(HttpServletRequest request){
 
 		String loginId = loginManager.getLoginID(request);
 

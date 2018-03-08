@@ -22,6 +22,7 @@ import com.song7749.base.Compare;
 import com.song7749.incident.drs.domain.Member;
 import com.song7749.incident.drs.repository.DatabaseRepository;
 import com.song7749.incident.drs.type.AuthType;
+import com.song7749.incident.drs.value.LoginDoDTO;
 import com.song7749.incident.drs.value.MemberAddDto;
 import com.song7749.incident.drs.value.MemberFindDto;
 import com.song7749.incident.drs.value.MemberModifyDto;
@@ -106,6 +107,17 @@ public class MemberManagerImplTest {
 		// then
 		assertThat(dto.getName(), equalTo(vo.getName()));
 		assertThat(dto.getTeamName(), equalTo(vo.getTeamName()));
+	}
+
+	@Test
+	public void testModifyMemberLastLoginDate() throws Exception {
+		// give
+		MemberVo vo = memberManager.addMemeber(memberAddDto);
+		LoginDoDTO dto = mapper.map(vo, LoginDoDTO.class);
+		// when
+		vo = memberManager.modifyMemberLastLoginDate(dto);
+		// then
+		assertThat(vo.getLastLoginDate(), notNullValue());
 	}
 
 	@Test

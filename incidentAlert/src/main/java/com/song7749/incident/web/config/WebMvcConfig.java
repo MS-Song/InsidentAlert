@@ -47,11 +47,15 @@ public class WebMvcConfig extends WebMvcConfigurationSupport {
 
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
+
+		/**
+		 * index page config
+		 */
 	    registry.addResourceHandler("index.html")
-	      .addResourceLocations("classpath:/META-INF/resources/static/");
+	      .addResourceLocations("classpath:/static/");
 
 		registry.addResourceHandler("/static/**")
-	      .addResourceLocations("classpath:/META-INF/resources/static/");
+	      .addResourceLocations("classpath:/static/");
 
 	    /**
 	     * Swagger UI config

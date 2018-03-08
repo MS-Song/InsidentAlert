@@ -3,8 +3,8 @@ package com.song7749.incident.drs.value;
 import java.util.Date;
 
 import org.springframework.boot.jdbc.DatabaseDriver;
-import org.springframework.format.annotation.DateTimeFormat;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.song7749.base.AbstractVo;
 import com.song7749.incident.drs.type.Charset;
 
@@ -43,11 +43,11 @@ public class DatabaseVo extends AbstractVo {
 	@ApiModelProperty("Port")
 	private String port;
 
-	@DateTimeFormat(pattern = "yyyy-MM-dd h:i:s")
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm:ss")
 	@ApiModelProperty(value = "Create")
 	private Date createDate;
 
-	@DateTimeFormat(pattern = "yyyy-MM-dd h:i:s")
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm:ss")
 	@ApiModelProperty(value = "Modify")
 	private Date modifyDate;
 

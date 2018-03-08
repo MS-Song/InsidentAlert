@@ -24,7 +24,6 @@ import javax.validation.constraints.Size;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.validator.constraints.Length;
 import org.modelmapper.ModelMapper;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -108,12 +107,12 @@ public class Member extends Entities {
 	@DateTimeFormat(pattern = "yyyy-MM-dd h:i:s")
 	private Date createDate;
 
-	@Column(nullable = false)
-	@UpdateTimestamp
+	@Column(nullable = true)
+	//@UpdateTimestamp
 	@DateTimeFormat(pattern = "yyyy-MM-dd h:i:s")
 	private Date modifyDate;
 
-	@Column
+	@Column(nullable = true)
 	@DateTimeFormat(pattern = "yyyy-MM-dd h:i:s")
 	private Date lastLoginDate;
 

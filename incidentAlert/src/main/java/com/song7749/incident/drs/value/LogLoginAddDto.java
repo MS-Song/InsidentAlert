@@ -1,5 +1,6 @@
 package com.song7749.incident.drs.value;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
@@ -17,8 +18,8 @@ public class LogLoginAddDto extends BaseObject implements Dto{
 	@Size(min = 8, max = 64)
 	private String ip;
 
+	@Email
 	@NotBlank
-	@Size(min = 4, max = 20)
 	private String loginId;
 
 	@NotBlank
@@ -32,8 +33,7 @@ public class LogLoginAddDto extends BaseObject implements Dto{
 	 * @param cipher
 	 */
 	public LogLoginAddDto(@NotBlank @Size(min = 8, max = 64) String ip,
-			@NotBlank @Size(min = 4, max = 20) String loginId, @NotBlank String cipher) {
-		super();
+			@Email @NotBlank String loginId, @NotBlank String cipher) {
 		this.ip = ip;
 		this.loginId = loginId;
 		this.cipher = cipher;

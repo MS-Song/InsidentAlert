@@ -51,6 +51,9 @@ public class LoginManagerImpl implements LoginManager{
 	MemberRepository memberRepository;
 
 	@Autowired
+	MemberManager memberManager;
+
+	@Autowired
 	LogManager logManager;
 
 	@Override
@@ -60,7 +63,7 @@ public class LoginManagerImpl implements LoginManager{
 
 	@Override
 	@Valid
-	@Transactional(readOnly=true)
+	@Transactional
 	public boolean doLogin(LoginDoDTO dto,HttpServletRequest request,HttpServletResponse response){
 
 		Member member = memberRepository.findByLoginIdAndPassword(dto.getLoginId(), dto.getPassword());
@@ -71,6 +74,9 @@ public class LoginManagerImpl implements LoginManager{
 			ciperCookie.setMaxAge(60*60*24);
 			ciperCookie.setPath("/");
 			response.addCookie(ciperCookie);
+
+			// 마지막 로그인 시간 업데이트
+			memberManager.modifyMemberLastLoginDate(dto);
 
 			// 로그인 로그 기록 -- asyc 기록
 			LogLoginAddDto logLoginAddDto = new LogLoginAddDto(

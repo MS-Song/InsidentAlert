@@ -1,6 +1,7 @@
 package com.song7749.incident.drs.service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.StringJoiner;
@@ -20,6 +21,7 @@ import com.song7749.base.Compare;
 import com.song7749.base.Parameter;
 import com.song7749.incident.drs.domain.Member;
 import com.song7749.incident.drs.repository.MemberRepository;
+import com.song7749.incident.drs.value.LoginDoDTO;
 import com.song7749.incident.drs.value.MemberAddDto;
 import com.song7749.incident.drs.value.MemberFindDto;
 import com.song7749.incident.drs.value.MemberModifyDto;
@@ -70,6 +72,18 @@ public class MemberManagerImpl implements MemberManager {
 		// 조회 후 변경된 내용만 첨가 mapper config 참조
 		Member member = memberRepository.findById(dto.getId()).get();
 		mapper.map(dto, member);
+		// 변경 일자 기록 -- last login date 와 충돌을 피가히 위해 업데이트를 별도로 기록
+		member.setModifyDate(new Date(System.currentTimeMillis()));
+		return memberRepository.saveAndFlush(member).getMemberVo(mapper);
+	}
+
+	@Override
+	public MemberVo modifyMemberLastLoginDate(LoginDoDTO dto) {
+		// 조회 후 변경된 내용만 첨가 mapper config 참조
+		Member member = memberRepository.findByLoginId(dto.getLoginId());
+		mapper.map(dto, member);
+		// 마지막 로그인 날짜 기록
+		member.setLastLoginDate(new Date(System.currentTimeMillis()));
 		return memberRepository.saveAndFlush(member).getMemberVo(mapper);
 	}
 

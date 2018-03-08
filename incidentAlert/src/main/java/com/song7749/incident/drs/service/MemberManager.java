@@ -2,6 +2,7 @@ package com.song7749.incident.drs.service;
 
 import java.util.List;
 
+import com.song7749.incident.drs.value.LoginDoDTO;
 import com.song7749.incident.drs.value.MemberAddDto;
 import com.song7749.incident.drs.value.MemberFindDto;
 import com.song7749.incident.drs.value.MemberModifyDto;
@@ -28,6 +29,8 @@ public interface MemberManager {
 	MemberVo addMemeber(MemberAddDto dto);
 
 	MemberVo modifyMember(MemberModifyDto dto);
+
+	MemberVo modifyMemberLastLoginDate(LoginDoDTO dto);
 
 	void removeMember(Long id);
 

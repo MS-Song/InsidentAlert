@@ -175,5 +175,4 @@ public class MemberRepositoryTest {
 		//then
 		assertThat(m.getLoginId(), equalTo(m2.getLoginId()));
 	}
-
 }
