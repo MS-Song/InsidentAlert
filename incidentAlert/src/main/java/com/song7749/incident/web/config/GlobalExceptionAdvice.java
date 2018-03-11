@@ -24,13 +24,14 @@ import org.springframework.web.multipart.support.MissingServletRequestPartExcept
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import com.song7749.base.MessageVo;
+import com.song7749.incident.exception.AuthorityUserException;
+import com.song7749.incident.exception.MemberNotFoundException;
 
 /**
  * <pre>
- * Class Name : GlobalControllerAdvice.java
- * Description : 컨트롤러의 전역 설정을 처리하는 Advice
- * Exception 또는 Response 의 wrapping을 담당 한다.
-*
+ * Class Name : GlobalExceptionAdvice.java
+ * Description : 컨트롤러의 Exception 전역 설정을 처리하는 Advice
+ *
 *
 *  Modification Information
 *  Modify Date 		Modifier				Comment
@@ -44,7 +45,7 @@ import com.song7749.base.MessageVo;
  */
 
 @ControllerAdvice
-public class GlobalControllerAdvice {
+public class GlobalExceptionAdvice {
 
 	Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -99,12 +100,9 @@ public class GlobalControllerAdvice {
 	private int getResponseCode(Exception e) {
 		int responseCode = 0;
 		// 400
-		if (e instanceof BindException
-				|| e instanceof HttpMessageNotReadableException
-				|| e instanceof MethodArgumentNotValidException
-				|| e instanceof MissingServletRequestParameterException
-				|| e instanceof MissingServletRequestPartException
-				|| e instanceof TypeMismatchException
+		if (e instanceof BindException || e instanceof HttpMessageNotReadableException
+				|| e instanceof MethodArgumentNotValidException || e instanceof MissingServletRequestParameterException
+				|| e instanceof MissingServletRequestPartException || e instanceof TypeMismatchException
 				|| e instanceof IllegalArgumentException) {
 			responseCode = HttpServletResponse.SC_BAD_REQUEST;
 		}
@@ -114,7 +112,9 @@ public class GlobalControllerAdvice {
 		}
 		// 405
 		else if (e instanceof HttpRequestMethodNotSupportedException
-				|| e instanceof LoginException) {
+				|| e instanceof LoginException
+				|| e instanceof AuthorityUserException
+				|| e instanceof MemberNotFoundException) {
 			responseCode = HttpServletResponse.SC_METHOD_NOT_ALLOWED;
 		}
 		// 406

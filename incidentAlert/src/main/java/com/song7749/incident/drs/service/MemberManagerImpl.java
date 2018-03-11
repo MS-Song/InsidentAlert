@@ -16,16 +16,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.song7749.base.Compare;
 import com.song7749.base.Parameter;
+import com.song7749.incident.drs.domain.Database;
 import com.song7749.incident.drs.domain.Member;
+import com.song7749.incident.drs.domain.MemberDatabase;
+import com.song7749.incident.drs.repository.DatabaseRepository;
 import com.song7749.incident.drs.repository.MemberRepository;
-import com.song7749.incident.drs.value.LoginDoDTO;
+import com.song7749.incident.drs.type.MemberModifyByAdminDto;
 import com.song7749.incident.drs.value.MemberAddDto;
 import com.song7749.incident.drs.value.MemberFindDto;
+import com.song7749.incident.drs.value.MemberModfyDatabaseDto;
 import com.song7749.incident.drs.value.MemberModifyDto;
 import com.song7749.incident.drs.value.MemberVo;
+import com.song7749.incident.exception.MemberNotFoundException;
 import com.song7749.util.validate.Validate;
 
 /**
@@ -52,6 +58,9 @@ public class MemberManagerImpl implements MemberManager {
 	@Autowired
 	MemberRepository memberRepository;
 
+	@Autowired
+	DatabaseRepository databaseRepository;
+
 	@PersistenceContext
 	private EntityManager em;
 
@@ -59,43 +68,71 @@ public class MemberManagerImpl implements MemberManager {
 	ModelMapper mapper;
 
 	@Validate
+	@Transactional
 	@Override
 	public MemberVo addMemeber(MemberAddDto dto) {
 		return memberRepository.saveAndFlush(dto.getMember(mapper)).getMemberVo(mapper);
 	}
 
 	@Validate
+	@Transactional
 	@Override
 	public MemberVo modifyMember(MemberModifyDto dto) {
-		// TODO 본인 확인 로직이 추가 되엉 함.
-
 		// 조회 후 변경된 내용만 첨가 mapper config 참조
 		Member member = memberRepository.findById(dto.getId()).get();
-		mapper.map(dto, member);
-		// 변경 일자 기록 -- last login date 와 충돌을 피가히 위해 업데이트를 별도로 기록
-		member.setModifyDate(new Date(System.currentTimeMillis()));
-		return memberRepository.saveAndFlush(member).getMemberVo(mapper);
-	}
+		if(null == member) {
+			throw new MemberNotFoundException();
+		}
 
-	@Override
-	public MemberVo modifyMemberLastLoginDate(LoginDoDTO dto) {
-		// 조회 후 변경된 내용만 첨가 mapper config 참조
-		Member member = memberRepository.findByLoginId(dto.getLoginId());
-		mapper.map(dto, member);
-		// 마지막 로그인 날짜 기록
-		member.setLastLoginDate(new Date(System.currentTimeMillis()));
+		// 관리자 수정시에는 변경일을 기록하지 않는다.
+		if(dto instanceof MemberModifyByAdminDto) {
+			mapper.map(dto, member);
+		} else {
+			mapper.map(dto, member);
+			// 회원 정보 변경 일자 기록
+			member.setModifyDate(new Date(System.currentTimeMillis()));
+		}
+
+		// 변경에 대한 로그를 기록 해야 한다.
 		return memberRepository.saveAndFlush(member).getMemberVo(mapper);
 	}
 
 	@Validate
+	@Transactional
+	@Override
+	public MemberVo modifyMember(MemberModifyByAdminDto dto) {
+		return modifyMember((MemberModifyDto)dto);
+	}
+
+	@Validate
+	@Transactional
+	@Override
+	public MemberVo modifyMember(MemberModfyDatabaseDto dto) {
+		Member m = memberRepository.findById(dto.getMemberId()).get();
+		Database database = databaseRepository.findById(dto.getDatebaseId()).get();
+
+		if(null==dto.getMemberDatabaseId()) {
+			m.addMemberDatabaseList(new MemberDatabase(database));
+		} else {
+			MemberDatabase removeMd = m.getMemberDatabaseList().stream()
+				.filter(md -> dto.getMemberDatabaseId().equals(md.getId()))
+				.findAny().orElse(null);
+			m.getMemberDatabaseList().remove(removeMd);
+		}
+		memberRepository.saveAndFlush(m);
+		return m.getMemberVo(mapper);
+	}
+
+	@Validate
+	@Transactional
 	@Override
 	public void removeMember(Long id) {
-		// TODO 본인 여부 확인 필요
 		memberRepository.deleteById(id);
 		memberRepository.flush();
 	}
 
 	@Validate
+	@Transactional(readOnly=true)
 	@Override
 	public MemberVo findMember(Long id) {
 		Optional<Member> om = memberRepository.findById(id);
@@ -103,6 +140,7 @@ public class MemberManagerImpl implements MemberManager {
 	}
 
 	@Validate
+	@Transactional(readOnly=true)
 	@Override
 	public MemberVo findMember(String loginId) {
 		Member m = memberRepository.findByLoginId(loginId);
@@ -110,6 +148,7 @@ public class MemberManagerImpl implements MemberManager {
 	}
 
 	@Validate
+	@Transactional(readOnly=true)
 	@Override
 	public MemberVo findMember(String loginId, String password) {
 		Member m = memberRepository.findByLoginIdAndPassword(loginId, password);
@@ -118,6 +157,7 @@ public class MemberManagerImpl implements MemberManager {
 
 
 	@Validate
+	@Transactional(readOnly=true)
 	@Override
 	public List<MemberVo> findMemberList(MemberFindDto dto) {
 		StringBuffer from  = new StringBuffer();
@@ -131,13 +171,18 @@ public class MemberManagerImpl implements MemberManager {
 			params.add(new Parameter("id", dto.getId()));
 		}
 
+		if(StringUtils.isNoneBlank(dto.getCertificationKey())) {
+			where.add("m.certificationKey = :certificationKey ");
+			params.add(new Parameter("certificationKey", dto.getCertificationKey()));
+		}
+
 		if(StringUtils.isNoneBlank(dto.getLoginId())){
 			if(dto.getLoginIdCompare().equals(Compare.LIKE)) {
 				where.add("m.loginId "+ dto.getLoginIdCompare().getValue()+ " CONCAT('%',:loginId,'%')");
 			} else {
 				where.add("m.loginId = :loginId ");
 			}
-			params.add(new Parameter("loginId", dto.getLoginId()));
+
 		}
 
 		if(StringUtils.isNoneBlank(dto.getName())){

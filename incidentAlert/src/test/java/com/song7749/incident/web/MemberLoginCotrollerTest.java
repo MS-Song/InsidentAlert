@@ -47,8 +47,6 @@ public class MemberLoginCotrollerTest extends ControllerTest{
 	@Autowired
 	MemberManager memberManager;
 
-	Cookie cookie;
-
 	// 테스트를 위한 회원 등록
 	MemberAddDto dto = new MemberAddDto(
 			"song12345678@gmail.com",
@@ -154,8 +152,7 @@ public class MemberLoginCotrollerTest extends ControllerTest{
 		drb=post("/member/doLogout").accept(MediaType.APPLICATION_JSON).locale(Locale.KOREA);
 
 		// 로그인 cookie 정보 추가
-		cookie = new Cookie("cipher", result.getResponse().getCookie("cipher").getValue());
-		drb.cookie(cookie);
+		drb.cookie(new Cookie("cipher", result.getResponse().getCookie("cipher").getValue()));
 
 		result = mvc.perform(drb)
 				.andExpect(status().isOk())
@@ -182,8 +179,7 @@ public class MemberLoginCotrollerTest extends ControllerTest{
 		drb=get("/member/getLogin").accept(MediaType.APPLICATION_JSON).locale(Locale.KOREA);
 
 		// 로그인 cookie 정보 추가
-		cookie = new Cookie("cipher", result.getResponse().getCookie("cipher").getValue());
-		drb.cookie(cookie);
+		drb.cookie(new Cookie("cipher", result.getResponse().getCookie("cipher").getValue()));
 
 		result = mvc.perform(drb)
 				.andExpect(status().isOk())

@@ -31,6 +31,12 @@ public class WebMvcConfig extends WebMvcConfigurationSupport {
 	@Qualifier("logMessageInterceptorHandle")
 	private HandlerInterceptor logMessageInterceptorHandle;
 
+	@Autowired
+	@Qualifier("logInInterceptor")
+	private HandlerInterceptor logInInterceptor;
+
+
+
 	/**
 	 * Log Message Interceptor
 	 */
@@ -38,10 +44,19 @@ public class WebMvcConfig extends WebMvcConfigurationSupport {
 	public void addInterceptors(InterceptorRegistry registry) {
 		registry.addInterceptor(logMessageInterceptorHandle)
 			.addPathPatterns("/**")
-			.excludePathPatterns("classpath:/META-INF/resources/**")
-			.excludePathPatterns("classpath:/META-INF/resources/webjars/**")
+			.excludePathPatterns("/webjars/**")
 			.excludePathPatterns("/static/**")
+			.excludePathPatterns("index.html")
+			.excludePathPatterns("swagger-ui.html")
 			;
+
+		registry.addInterceptor(logInInterceptor)
+		.addPathPatterns("/**")
+		.excludePathPatterns("/webjars/**")
+		.excludePathPatterns("/static/**")
+		.excludePathPatterns("index.html")
+		.excludePathPatterns("swagger-ui.html")
+		;
 	}
 
 

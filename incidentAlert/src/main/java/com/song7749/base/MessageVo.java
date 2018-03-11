@@ -10,8 +10,11 @@ import io.swagger.annotations.ApiModelProperty;
 
 /**
  * <pre>
- * Class Name : Message.java
+ * Class Name : MessageVo.java
  * Description : Client 에 보내는 메세지를 정의 한다.
+ * 모든 결과 값이 MessageVo 로 Wrapping 되어 전달 된다.
+ * 정상 적인 경우 GlobalResponseAdvice.java 에서 객체를 wrapping 한다.
+ * exception 이 발생할 경우 GlobalControllerAdvice.java 에서 wrapping 한다.
 *
 *
 *  Modification Information
@@ -51,21 +54,24 @@ public class MessageVo extends AbstractVo {
 	 * </code>
 	 */
 	@ApiModelProperty("HttpStatus")
-	private int httpStatus;
+	private Integer httpStatus;
 
 	/**
 	 * work database row or work Object count
 	 */
+	@ApiModelProperty("list count or affected row Count")
 	private Integer rowCount;
 
 	/**
 	 * return contents
 	 */
+	@ApiModelProperty("list or 1row contents")
 	private Object contents;
 
 	/**
 	 * error message
 	 */
+	@ApiModelProperty("exception message or server send user message")
 	private String message;
 
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-dd-MM")
@@ -76,8 +82,7 @@ public class MessageVo extends AbstractVo {
 	@ApiModelProperty(value = "api call time")
 	private Time time = new Time(System.currentTimeMillis());
 
-	public MessageVo() {
-	}
+	public MessageVo() {}
 
 	/**
 	 * @param httpStatus
@@ -110,10 +115,10 @@ public class MessageVo extends AbstractVo {
 
 	/**
 	 * @param httpStatus
-	 * @param message
 	 * @param affectedRows
+	 * @param message
 	 */
-	public MessageVo(Integer httpStatus, String message, Integer rowCount) {
+	public MessageVo(Integer httpStatus, Integer rowCount, String message) {
 		this.httpStatus = httpStatus;
 		this.message = message;
 		this.rowCount = rowCount;
@@ -124,13 +129,26 @@ public class MessageVo extends AbstractVo {
 	 * @param rowCount
 	 * @param contents
 	 */
-	public MessageVo(int httpStatus, Integer rowCount, Object contents) {
+	public MessageVo(Integer httpStatus, Integer rowCount, Object contents) {
 		this.httpStatus = httpStatus;
 		this.rowCount = rowCount;
 		this.contents = contents;
 	}
 
-	public int getHttpStatus() {
+	/**
+	 * @param httpStatus
+	 * @param rowCount
+	 * @param contents
+	 * @param message
+	 */
+	public MessageVo(Integer httpStatus, Integer rowCount, Object contents, String message) {
+		this.httpStatus = httpStatus;
+		this.rowCount = rowCount;
+		this.contents = contents;
+		this.message = message;
+	}
+
+	public Integer getHttpStatus() {
 		return httpStatus;
 	}
 

@@ -1,7 +1,5 @@
 package com.song7749.incident.web.config;
 
-import static com.song7749.util.LogMessageFormatter.format;
-
 import java.util.Collection;
 
 import javax.servlet.http.HttpServletResponse;
@@ -55,8 +53,6 @@ public class GlobalResponseAdvice implements ResponseBodyAdvice<Object> {
 			ServerHttpRequest request,
 			ServerHttpResponse response) {
 
-			logger.trace(format("{}", "ResponseBodyAdvice"),body);
-
 			int rowCount = 1;
 			if(body == null) {
 				rowCount = 0;
@@ -64,10 +60,17 @@ public class GlobalResponseAdvice implements ResponseBodyAdvice<Object> {
 				rowCount = ((Collection<?>) body).size();
 			}
 			// exception 이 발생한 경우 status code 를 변경한다
-			// 이미 MessageVo 로 변경된 경우 exception 이 발생한 경우 이다.
+			// 이미 MessageVo 로 변경된 경우
+			// -- exception 이 발생한 경우 이다.
+			// -- controller 에서 이미 MessageVo 로 보낸 경우
 			if(body instanceof MessageVo) {
-				// response code 변경
-				response.setStatusCode(HttpStatus.valueOf(((MessageVo)body).getHttpStatus()));
+				// 값이 존재 할 경우 response code 변경
+				if(null != ((MessageVo)body)
+						&& null != ((MessageVo)body).getHttpStatus()) {
+					response.setStatusCode(HttpStatus.valueOf(((MessageVo)body).getHttpStatus()));
+				} else { // 없을 경우 난감한 상황....
+
+				}
 				return body;
 			} else {
 				return new MessageVo(HttpServletResponse.SC_OK, rowCount, body);

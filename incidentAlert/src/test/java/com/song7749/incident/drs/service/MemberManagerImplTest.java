@@ -19,12 +19,17 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.song7749.base.Compare;
+import com.song7749.incident.drs.domain.Database;
 import com.song7749.incident.drs.domain.Member;
 import com.song7749.incident.drs.repository.DatabaseRepository;
+import com.song7749.incident.drs.repository.MemberRepository;
 import com.song7749.incident.drs.type.AuthType;
-import com.song7749.incident.drs.value.LoginDoDTO;
+import com.song7749.incident.drs.type.Charset;
+import com.song7749.incident.drs.type.DatabaseDriver;
+import com.song7749.incident.drs.type.MemberModifyByAdminDto;
 import com.song7749.incident.drs.value.MemberAddDto;
 import com.song7749.incident.drs.value.MemberFindDto;
+import com.song7749.incident.drs.value.MemberModfyDatabaseDto;
 import com.song7749.incident.drs.value.MemberModifyDto;
 import com.song7749.incident.drs.value.MemberVo;
 
@@ -37,6 +42,9 @@ public class MemberManagerImplTest {
 
 	@Autowired
 	MemberManager memberManager;
+
+	@Autowired
+	MemberRepository memberRepository;
 
 	@Autowired
 	DatabaseRepository databaseRepository;
@@ -64,6 +72,16 @@ public class MemberManagerImplTest {
 			, "패스워드답변은?"
 			, "제일잘나가는팀"
 			, "song7749");
+
+	Database ds = new Database("10.10.10.10"
+			, "test server"
+			, "dbTest"
+			, "song7749"
+			, "12345678"
+			, DatabaseDriver.ORACLE
+			, Charset.UTF8
+			, "3333"
+			, "");
 
 	@Test
 	public void testModelMapperMemberToMemberVo() {
@@ -102,7 +120,6 @@ public class MemberManagerImplTest {
 		dto.setTeamName("abcd team");
 
 		// when
-
 		vo = memberManager.modifyMember(dto);
 		// then
 		assertThat(dto.getName(), equalTo(vo.getName()));
@@ -110,14 +127,50 @@ public class MemberManagerImplTest {
 	}
 
 	@Test
-	public void testModifyMemberLastLoginDate() throws Exception {
-		// give
+	public void testModifyMemberMemberModifyByAdminDto() throws Exception {
+		//give
 		MemberVo vo = memberManager.addMemeber(memberAddDto);
-		LoginDoDTO dto = mapper.map(vo, LoginDoDTO.class);
+		MemberModifyByAdminDto dto = mapper.map(vo, MemberModifyByAdminDto.class);
+		dto.setPassword("abcdefghij123gdg");
+		dto.setName("song1234");
+		dto.setTeamName("abcd team");
+		dto.setAuthType(AuthType.ADMIN);
+
 		// when
-		vo = memberManager.modifyMemberLastLoginDate(dto);
+		vo = memberManager.modifyMember(dto);
+
 		// then
-		assertThat(vo.getLastLoginDate(), notNullValue());
+		assertThat(dto.getName(), equalTo(vo.getName()));
+		assertThat(dto.getTeamName(), equalTo(vo.getTeamName()));
+		assertThat(dto.getAuthType(), equalTo(vo.getAuthType()));
+
+	}
+
+	@Test
+	public void testModifyMemberMemberModfyDatabaseDto() throws Exception {
+		//give
+		Database d = databaseRepository.saveAndFlush(ds);
+		MemberVo vo = memberManager.addMemeber(memberAddDto);
+		MemberModfyDatabaseDto dto = new MemberModfyDatabaseDto(d.getId(), vo.getId());
+
+		// when
+		memberManager.modifyMember(dto);
+		Member m = memberRepository.findById(vo.getId()).get();
+
+		// then
+		assertThat(m.getMemberDatabaseList().size(), equalTo(1));
+
+		// give
+		dto = new MemberModfyDatabaseDto(
+				m.getMemberDatabaseList().get(0).getId()
+				, d.getId(), vo.getId());
+		// when
+		memberManager.modifyMember(dto);
+		m = memberRepository.findById(vo.getId()).get();
+
+		// then
+		assertThat(m.getMemberDatabaseList().size(), equalTo(0));
+
 	}
 
 	@Test

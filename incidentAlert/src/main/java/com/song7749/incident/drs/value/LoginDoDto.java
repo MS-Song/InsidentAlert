@@ -26,7 +26,7 @@ import io.swagger.annotations.ApiModelProperty;
 * @since 2015. 5. 13.
 */
 @ApiModel
-public class LoginDoDTO extends BaseObject implements Dto{
+public class LoginDoDto extends BaseObject implements Dto{
 
 	private static final long serialVersionUID = 2494197854525312202L;
 
@@ -40,7 +40,7 @@ public class LoginDoDTO extends BaseObject implements Dto{
 	@ApiModelProperty(value="비밀번호",required=true)
 	private String password;
 
-	public LoginDoDTO() {}
+	public LoginDoDto() {}
 
 	public String getLoginId() {
 		return loginId;

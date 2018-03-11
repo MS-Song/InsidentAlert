@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.song7749.base.MessageVo;
 import com.song7749.incident.drs.service.LoginManager;
 import com.song7749.incident.drs.service.MemberManager;
-import com.song7749.incident.drs.value.LoginDoDTO;
+import com.song7749.incident.drs.value.LoginDoDto;
 import com.song7749.incident.drs.value.MemberVo;
 import com.song7749.util.StringUtils;
 
@@ -42,12 +42,12 @@ public class MemberLoginCotroller {
 	@ApiOperation(value = "회원 로그인"
 			, notes = "회원 ID/PASSWORD 를 받아서 로그인 cookie 를 생성 한다."
 			, response=MessageVo.class)
-	@PostMapping(value="/doLogin")
+	@PostMapping("/doLogin")
 	@ResponseBody
 	public MessageVo doLogin(
 			HttpServletRequest request,
 			HttpServletResponse response,
-			@Valid @ModelAttribute LoginDoDTO dto){
+			@Valid @ModelAttribute LoginDoDto dto){
 
 		MessageVo vo = null;
 		if(loginManager.doLogin(dto, request, response)) {
@@ -61,7 +61,7 @@ public class MemberLoginCotroller {
 	@ApiOperation(value = "회원 로그아웃"
 			, notes = "로그 아웃 프로세스를 실행한다."
 			, response=MessageVo.class)
-	@PostMapping(value="/doLogout")
+	@PostMapping("/doLogout")
 	@ResponseBody
 	public MessageVo doLogout(HttpServletResponse response){
 
@@ -73,11 +73,11 @@ public class MemberLoginCotroller {
 	@ApiOperation(value = "로그인 정보 획득"
 			, notes = "cookie 에 저장되어 있는 로그인 정보를 획득한다."
 			, response=MemberVo.class)
-	@GetMapping(value="/getLogin")
+	@GetMapping("/getLogin")
 	@ResponseBody
-	public MemberVo getLogin(HttpServletRequest request){
+	public MemberVo getLogin(HttpServletRequest request, HttpServletResponse response){
 
-		String loginId = loginManager.getLoginID(request);
+		String loginId = loginManager.getLoginID(request,response);
 
 		MemberVo vo = null;
 		if(!StringUtils.isBlank(loginId)){
