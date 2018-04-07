@@ -19,17 +19,19 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.validator.constraints.Length;
+import org.modelmapper.ModelMapper;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.song7749.base.Entities;
 import com.song7749.incident.drs.type.Charset;
 import com.song7749.incident.drs.type.DatabaseDriver;
+import com.song7749.incident.drs.value.DatabaseVo;
 import com.song7749.util.crypto.CryptoTwoWayConverter;
 
 /**
  * <pre>
- * Class Name : DatabaseServerInfo.java
- * Description : DatbaseServer 접속 정보 저장
+ * Class Name : Database.java
+ * Description : Datbase Server 접속 정보 저장
 *
 *
 *  Modification Information
@@ -109,8 +111,15 @@ public class Database extends Entities {
 	@Transient
 	private String name;
 
-	public Database() {
+	public Database() {}
+
+	/**
+	 * @param id
+	 */
+	public Database(Long id) {
+		this.id = id;
 	}
+
 
 	/**
 	 * @param host
@@ -235,6 +244,11 @@ public class Database extends Entities {
 	public void setName(String name) {
 		this.name = name;
 	}
+
+	public DatabaseVo getDatabaseVo(ModelMapper mapper) {
+		return mapper.map(this, DatabaseVo.class);
+	}
+
 
 	@Override
 	public int hashCode() {

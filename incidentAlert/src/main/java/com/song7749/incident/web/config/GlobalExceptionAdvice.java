@@ -59,6 +59,9 @@ public class GlobalExceptionAdvice {
 	@ResponseBody
 	MessageVo handleError404(Exception e) {
 		logger.debug(format("{}", "REQUEST EXCEPTION STATUS"), e.getMessage());
+		if(logger.isDebugEnabled()){
+			e.printStackTrace();
+		}
 		return new MessageVo(getResponseCode(e), e.getMessage());
 	}
 
@@ -87,6 +90,9 @@ public class GlobalExceptionAdvice {
 			sb.append(e.getMessage());
 		}
 		logger.debug(format("{}", "REQUEST EXCEPTION STATUS"), sb.toString());
+		if(logger.isDebugEnabled()){
+			e.printStackTrace();
+		}
 		return new MessageVo(getResponseCode(e), sb.toString());
 	}
 

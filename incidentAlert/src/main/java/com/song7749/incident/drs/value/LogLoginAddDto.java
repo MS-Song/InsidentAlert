@@ -6,11 +6,10 @@ import javax.validation.constraints.Size;
 
 import org.modelmapper.ModelMapper;
 
-import com.song7749.base.BaseObject;
-import com.song7749.base.Dto;
+import com.song7749.base.AbstractDto;
 import com.song7749.incident.drs.domain.LogLogin;
 
-public class LogLoginAddDto extends BaseObject implements Dto{
+public class LogLoginAddDto  extends AbstractDto {
 
 	private static final long serialVersionUID = 1207184553943521808L;
 

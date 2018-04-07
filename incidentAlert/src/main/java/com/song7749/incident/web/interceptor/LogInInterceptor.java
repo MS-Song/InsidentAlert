@@ -52,7 +52,10 @@ public class LogInInterceptor extends HandlerInterceptorAdapter {
 	public boolean preHandle(HttpServletRequest request,
 			HttpServletResponse response, Object handler) throws Exception {
 
-		Login login = getLoginAnnotation((HandlerMethod)handler);
+		Login login=null;
+		if(handler instanceof HandlerMethod) {
+			login = getLoginAnnotation((HandlerMethod)handler);
+		}
 
 		/**
 		 * 로그인이 필요한 경우에만 실행한다.
@@ -81,6 +84,7 @@ public class LogInInterceptor extends HandlerInterceptorAdapter {
 			// 로그인이 되어 있다.
 			else{
 				logger.debug(LogMessageFormatter.format("{}", "권한 확인"),login);
+
 				// 권한에 맞는 페이지에 접근 했는가 확인
 				if(!loginManager.isAccese(request, response, login)){
 					logger.debug(LogMessageFormatter.format("{}", "권한 획득 실패"),login);

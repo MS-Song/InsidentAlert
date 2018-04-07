@@ -33,7 +33,7 @@ public class CryptoTwoWayConverter implements AttributeConverter<String,String> 
 		try {
 			return CryptoAES.encrypt(attribute);
 		} catch (Exception e) {
-			logger.error(format("{}","PasswordConverter.convertToDatabaseColumn"),e.getMessage());
+			logger.error(format("{}","CryptoTwoWayConverter.convertToDatabaseColumn"),e.getMessage());
 		}
 		return attribute;
 	}
@@ -44,7 +44,7 @@ public class CryptoTwoWayConverter implements AttributeConverter<String,String> 
 		try {
 			return CryptoAES.decrypt(dbData);
 		} catch (Exception e) {
-			logger.error(format("{}","PasswordConverter.convertToEntityAttribute"),e.getMessage());
+			logger.error(format("{}","CryptoTwoWayConverter.convertToEntityAttribute"),e.getMessage());
 		}
 		return dbData;
 	}

@@ -1,37 +1,52 @@
 package com.song7749.incident.drs.service;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
-import java.util.StringJoiner;
+import java.util.function.Function;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
 
-import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.song7749.base.Compare;
-import com.song7749.base.Parameter;
 import com.song7749.incident.drs.domain.Database;
 import com.song7749.incident.drs.domain.Member;
 import com.song7749.incident.drs.domain.MemberDatabase;
+import com.song7749.incident.drs.domain.MemberSaveQuery;
 import com.song7749.incident.drs.repository.DatabaseRepository;
+import com.song7749.incident.drs.repository.MemberDatabaseRepository;
 import com.song7749.incident.drs.repository.MemberRepository;
+import com.song7749.incident.drs.repository.MemberSaveQueryRepository;
+import com.song7749.incident.drs.session.LoginSession;
 import com.song7749.incident.drs.type.MemberModifyByAdminDto;
+import com.song7749.incident.drs.value.DatabaseVo;
+import com.song7749.incident.drs.value.LoginAuthVo;
 import com.song7749.incident.drs.value.MemberAddDto;
+import com.song7749.incident.drs.value.MemberDatabaseAddOrModifyDto;
+import com.song7749.incident.drs.value.MemberDatabaseFindDto;
+import com.song7749.incident.drs.value.MemberDatabaseVo;
 import com.song7749.incident.drs.value.MemberFindDto;
-import com.song7749.incident.drs.value.MemberModfyDatabaseDto;
 import com.song7749.incident.drs.value.MemberModifyDto;
+import com.song7749.incident.drs.value.MemberSaveQueryAddDto;
+import com.song7749.incident.drs.value.MemberSaveQueryFindDto;
+import com.song7749.incident.drs.value.MemberSaveQueryModifyDto;
+import com.song7749.incident.drs.value.MemberSaveQueryRemoveDto;
+import com.song7749.incident.drs.value.MemberSaveQueryVo;
 import com.song7749.incident.drs.value.MemberVo;
+import com.song7749.incident.drs.value.RenewApikeyDto;
 import com.song7749.incident.exception.MemberNotFoundException;
+import com.song7749.util.ObjectJsonUtil;
+import com.song7749.util.crypto.CryptoAES;
 import com.song7749.util.validate.Validate;
 
 /**
@@ -59,7 +74,16 @@ public class MemberManagerImpl implements MemberManager {
 	MemberRepository memberRepository;
 
 	@Autowired
+	MemberSaveQueryRepository memberSQRepository;
+
+	@Autowired
+	MemberDatabaseRepository memberDatabaseRepository;
+
+	@Autowired
 	DatabaseRepository databaseRepository;
+
+	@Autowired
+	LoginSession loginSession;
 
 	@PersistenceContext
 	private EntityManager em;
@@ -107,25 +131,6 @@ public class MemberManagerImpl implements MemberManager {
 	@Validate
 	@Transactional
 	@Override
-	public MemberVo modifyMember(MemberModfyDatabaseDto dto) {
-		Member m = memberRepository.findById(dto.getMemberId()).get();
-		Database database = databaseRepository.findById(dto.getDatebaseId()).get();
-
-		if(null==dto.getMemberDatabaseId()) {
-			m.addMemberDatabaseList(new MemberDatabase(database));
-		} else {
-			MemberDatabase removeMd = m.getMemberDatabaseList().stream()
-				.filter(md -> dto.getMemberDatabaseId().equals(md.getId()))
-				.findAny().orElse(null);
-			m.getMemberDatabaseList().remove(removeMd);
-		}
-		memberRepository.saveAndFlush(m);
-		return m.getMemberVo(mapper);
-	}
-
-	@Validate
-	@Transactional
-	@Override
 	public void removeMember(Long id) {
 		memberRepository.deleteById(id);
 		memberRepository.flush();
@@ -159,69 +164,275 @@ public class MemberManagerImpl implements MemberManager {
 	@Validate
 	@Transactional(readOnly=true)
 	@Override
-	public List<MemberVo> findMemberList(MemberFindDto dto) {
-		StringBuffer from  = new StringBuffer();
-		StringJoiner where  = new StringJoiner(" and ");
-		List<Parameter> params = new ArrayList<Parameter>();
+	public Page<MemberVo> findMemberList(MemberFindDto dto, Pageable page) {
+		// entity from dto
+		Member m = mapper.map(dto, Member.class);
+		// matcher define
+		ExampleMatcher matcher = ExampleMatcher.matching()
+			.withMatcher("name",  match -> {
+				// like
+				if(null!=dto.getName()
+						&& dto.getNameCompare().equals(Compare.LIKE)) {
+					match.contains();
+				} else { // equal
+					match.exact();
+				}
+			})
+			.withMatcher("teamName",  match -> {
+				// like
+				if(null!=dto.getTeamName()
+						&& dto.getNameCompare().equals(Compare.LIKE)) {
+					match.contains();
+				} else { // equal
+					match.exact();
+				}
+			})
+			.withMatcher("loginId",  match -> {
+				// like
+				if(null!=dto.getLoginId()
+						&& dto.getLoginIdCompare().equals(Compare.LIKE)) {
+					match.contains();
+				} else { // equal
+					match.exact();
+				}
+			})
+			;
 
-		from.append("select m from Member m ");
+		Example<Member> example = Example.of(m, matcher);
+		Page<Member> pm = memberRepository.findAll(example, page);
+		return  pm.map(
+			new Function<Member, MemberVo>() {
+				@Override
+				public MemberVo apply(Member t) {
+					return mapper.map(t, MemberVo.class);
+				}
+			}
+		);
+	}
 
-		if(null != dto.getId()) {
-			where.add("m.id= :id ");
-			params.add(new Parameter("id", dto.getId()));
+	@Validate
+	@Transactional
+	@Override
+	public MemberSaveQueryVo addMemberSaveQuery(MemberSaveQueryAddDto dto) {
+
+		Optional<Database> oDB = databaseRepository.findById(dto.getDatabaseId());
+		Database db = null;
+		if(oDB.isPresent()) {
+			db = oDB.get();
+		} else {
+			throw new IllegalArgumentException("Database 정보가 없습니다.");
 		}
 
-		if(StringUtils.isNoneBlank(dto.getCertificationKey())) {
-			where.add("m.certificationKey = :certificationKey ");
-			params.add(new Parameter("certificationKey", dto.getCertificationKey()));
+		Optional<Member> oMember = memberRepository.findById(dto.getMemberId());
+		Member member = null;
+		if(oMember.isPresent()) {
+			member = oMember.get();
+		} else {
+			throw new IllegalArgumentException("회원 정보가 없습니다.");
 		}
 
-		if(StringUtils.isNoneBlank(dto.getLoginId())){
-			if(dto.getLoginIdCompare().equals(Compare.LIKE)) {
-				where.add("m.loginId "+ dto.getLoginIdCompare().getValue()+ " CONCAT('%',:loginId,'%')");
+		MemberSaveQuery msq = new MemberSaveQuery(
+				dto.getMemo(), dto.getQuery(), member, db);
+
+		memberSQRepository.saveAndFlush(msq);
+
+		return msq.getMemberSaveQueryVo(mapper);
+	}
+
+	@Validate
+	@Transactional
+	@Override
+	public MemberSaveQueryVo modifyMemberSaveQuery(MemberSaveQueryModifyDto dto) {
+
+		Optional<MemberSaveQuery> oMemberSQ = memberSQRepository.findById(dto.getId());
+		MemberSaveQuery msq = null;
+
+		if(oMemberSQ.isPresent()) {
+			msq=oMemberSQ.get();
+		} else {
+			throw new IllegalArgumentException("저장된 쿼리 정보가 없습니다.");
+		}
+
+		if(!dto.getMemberId().equals(msq.getMember().getId())) {
+			throw new IllegalArgumentException("회원 정보가 일치하지 않습니다.");
+		}
+
+		mapper.map(dto,msq);
+		memberSQRepository.saveAndFlush(msq);
+
+		return msq.getMemberSaveQueryVo(mapper);
+	}
+
+	@Validate
+	@Transactional
+	@Override
+	public void removeMemberSaveQuery(MemberSaveQueryRemoveDto dto) {
+		Optional<MemberSaveQuery> oMemberSQ = memberSQRepository.findById(dto.getId());
+		MemberSaveQuery msq = null;
+
+		if(oMemberSQ.isPresent()) {
+			msq=oMemberSQ.get();
+		} else {
+			throw new IllegalArgumentException("저장된 쿼리 정보가 없습니다.");
+		}
+
+		if(!dto.getMemberId().equals(msq.getMember().getId())) {
+			throw new IllegalArgumentException("회원 정보가 일치하지 않습니다.");
+		}
+
+		memberSQRepository.deleteById(dto.getId());
+	}
+
+	@Validate
+	@Transactional(readOnly=true)
+	@Override
+	public Page<MemberSaveQueryVo> findMemberSaveQueray(MemberSaveQueryFindDto dto, Pageable page) {
+
+		MemberSaveQuery msq = new MemberSaveQuery();
+		msq.setDatabase(new Database(dto.getDatabaseId()));
+		msq.setMember(new Member(dto.getMemberId()));
+		msq.setId(dto.getMemberSaveQueryId());
+
+		Example<MemberSaveQuery> ex = Example.of(msq);
+
+		Page<MemberSaveQuery> pMemberSaveQuery = memberSQRepository.findAll(ex, page);
+
+		return  pMemberSaveQuery.map(
+			new Function<MemberSaveQuery, MemberSaveQueryVo>() {
+				@Override
+				public MemberSaveQueryVo apply(MemberSaveQuery t) {
+					return mapper.map(t, MemberSaveQueryVo.class);
+				}
+			}
+		);
+	}
+
+	@Validate
+	@Transactional
+	@Override
+	public MemberDatabaseVo addOrModifyMemberDatabase(MemberDatabaseAddOrModifyDto dto) {
+		// ID 가 있는 경우에는 삭제를 시도 한다.
+		if(null!=dto.getId()) {
+			memberDatabaseRepository.deleteById(dto.getId());
+			return new MemberDatabaseVo();
+		} else {
+			Optional<Database> oDB = databaseRepository.findById(dto.getDatabaseId());
+			Database db = null;
+			if(oDB.isPresent()) {
+				db = oDB.get();
 			} else {
-				where.add("m.loginId = :loginId ");
+				throw new IllegalArgumentException("Database 정보가 없습니다.");
 			}
 
-		}
-
-		if(StringUtils.isNoneBlank(dto.getName())){
-			if(dto.getNameCompare().equals(Compare.LIKE)) {
-				where.add("m.name "+ dto.getNameCompare().getValue()+ " CONCAT('%',:name,'%')");
+			Optional<Member> oMember = memberRepository.findById(dto.getMemberId());
+			Member member = null;
+			if(oMember.isPresent()) {
+				member = oMember.get();
 			} else {
-				where.add("m.name = :name ");
+				throw new IllegalArgumentException("회원 정보가 없습니다.");
 			}
-			params.add(new Parameter("name", dto.getName()));
-		}
 
-		if(StringUtils.isNoneBlank(dto.getTeamName())) {
-			if(dto.getTeamNameCompare().equals(Compare.LIKE)) {
-				where.add("m.teamName "+ dto.getTeamNameCompare().getValue()+ " CONCAT('%',:teamName,'%')");
-			} else {
-				where.add("m.teamName = :teamName ");
+			return memberDatabaseRepository
+					.saveAndFlush(new MemberDatabase(db, member))
+					.getMemberDatabaseVo(mapper);
+		}
+	}
+
+	/**
+	 * Member Database 의 return 값이
+	 * 회원의 권한에 따라 MemberDatabaseVo 또는  DatabaseVo 로 나눠지기 때문에
+	 * 기초 데이터 조회 Method 를 별도로 분리 한다.
+	 * @param dto
+	 * @param page
+	 * @return
+	 */
+	private Page<MemberDatabase> findMemberDatabase(MemberDatabaseFindDto dto, Pageable page){
+		MemberDatabase md = new MemberDatabase();
+		md.setId(dto.getId());
+		md.setMember(new Member(dto.getMemberId()));
+		md.setDatabase(new Database(dto.getDatabaseId()));
+
+		Example<MemberDatabase> ex = Example.of(md);
+		return memberDatabaseRepository.findAll(ex, page);
+	}
+
+	@Validate
+	@Transactional(readOnly=true)
+	@Override
+	public Page<MemberDatabaseVo> findMemberDatabaseList(MemberDatabaseFindDto dto, Pageable page) {
+		return  findMemberDatabase(dto,page).map(
+			new Function<MemberDatabase, MemberDatabaseVo>() {
+				@Override
+				public MemberDatabaseVo apply(MemberDatabase t) {
+					MemberDatabaseVo vo = mapper.map(t, MemberDatabaseVo.class);
+					vo.setDatabaseVo(t.getDatabase().getDatabaseVo(mapper));
+					return vo;
+				}
 			}
-			params.add(new Parameter("teamName", dto.getTeamName()));
+		);
+	}
+
+	@Validate
+	@Transactional(readOnly=true)
+	@Override
+	public Page<DatabaseVo> findDatabaseListByMemberAllow(MemberDatabaseFindDto dto, Pageable page) {
+		return  findMemberDatabase(dto,page).map(
+			new Function<MemberDatabase, DatabaseVo>() {
+				@Override
+				public DatabaseVo apply(MemberDatabase t) {
+					return t.getDatabase().getDatabaseVo(mapper);
+				}
+			}
+		);
+	}
+
+	@Validate
+	@Transactional
+	@Override
+	public MemberVo renewApikey(RenewApikeyDto dto) {
+		Member member = memberRepository.findByLoginIdAndPassword(dto.getLoginId(), dto.getPassword());
+		if(null==member) {
+			throw new IllegalArgumentException("ID 또는 패스워드가 틀렸거나, 회원 정보가 존재하지 않습니다.");
 		}
 
+		LoginAuthVo lav = new LoginAuthVo(
+				member.getId(),
+				member.getLoginId(),
+				member.getAuthType(),
+				new Date(System.currentTimeMillis()));
+		String cipherValue = null;
+		try {
+			cipherValue=CryptoAES.encrypt(ObjectJsonUtil.getJsonStringByObject(lav));
+		} catch (Exception e) {
+			throw new IllegalArgumentException("회원 인증 생성 실패. 관리자에게 문의 하세요");
+		}
+		member.setApikey(cipherValue);
+		return memberRepository.saveAndFlush(member).getMemberVo(mapper);
+	}
 
-		StringBuffer query = new StringBuffer();
-		query.append(from.toString());
-		if(where.length()>0) {
-			query.append("where " + where.toString());
+	@Validate
+	@Transactional
+	@Override
+	public MemberVo renewApikeyByAdmin(String loginId) {
+		Member member = memberRepository.findByLoginId(loginId);
+
+		if(null==member) {
+			throw new IllegalArgumentException("회원 정보가 없습니다.");
 		}
 
-		TypedQuery<Member> result = em.createQuery(query.toString(),Member.class);
-		for(Parameter p  : params) {
-			result.setParameter(p.getName(), p.getValue());
+		LoginAuthVo lav = new LoginAuthVo(
+				member.getId(),
+				member.getLoginId(),
+				member.getAuthType(),
+				new Date(System.currentTimeMillis()));
+
+		String cipherValue = null;
+		try {
+			cipherValue=CryptoAES.encrypt(ObjectJsonUtil.getJsonStringByObject(lav));
+		} catch (Exception e) {
+			throw new IllegalArgumentException(e.getMessage());
 		}
-
-		// 한정자 추가
-		result.setFirstResult(dto.getOffset().intValue())
-				.setMaxResults(dto.getLimit().intValue());
-
-		List<MemberVo> mv = new ArrayList<MemberVo>();
-		result.getResultList().forEach(m -> mv.add(m.getMemberVo(mapper)));
-
-		return mv;
+		member.setApikey(cipherValue);
+		return memberRepository.saveAndFlush(member).getMemberVo(mapper);
 	}
 }

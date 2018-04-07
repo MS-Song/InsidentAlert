@@ -82,6 +82,8 @@ public class MessageVo extends AbstractVo {
 	@ApiModelProperty(value = "api call time")
 	private Time time = new Time(System.currentTimeMillis());
 
+	private Long processTime;
+
 	public MessageVo() {}
 
 	/**
@@ -187,4 +189,14 @@ public class MessageVo extends AbstractVo {
 	public Time getTime() {
 		return time;
 	}
+
+	public Long getProcessTime() {
+		return processTime;
+	}
+
+	public void setProcessTime(Long processTime) {
+		this.processTime = processTime;
+	}
+
+
 }

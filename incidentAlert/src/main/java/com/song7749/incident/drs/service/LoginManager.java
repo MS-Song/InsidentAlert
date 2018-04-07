@@ -53,6 +53,7 @@ public interface LoginManager {
 
 	/**
 	 * 로그은 된 회원의 ID 조회 및 인증정보 갱신
+	 * LoginSession 도 생성 한다.
 	 * @param request
 	 * @param response
 	 * @return String

@@ -1,13 +1,23 @@
 package com.song7749.incident.drs.service;
 
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import com.song7749.incident.drs.type.MemberModifyByAdminDto;
+import com.song7749.incident.drs.value.DatabaseVo;
 import com.song7749.incident.drs.value.MemberAddDto;
+import com.song7749.incident.drs.value.MemberDatabaseAddOrModifyDto;
+import com.song7749.incident.drs.value.MemberDatabaseFindDto;
+import com.song7749.incident.drs.value.MemberDatabaseVo;
 import com.song7749.incident.drs.value.MemberFindDto;
-import com.song7749.incident.drs.value.MemberModfyDatabaseDto;
 import com.song7749.incident.drs.value.MemberModifyDto;
+import com.song7749.incident.drs.value.MemberSaveQueryAddDto;
+import com.song7749.incident.drs.value.MemberSaveQueryFindDto;
+import com.song7749.incident.drs.value.MemberSaveQueryModifyDto;
+import com.song7749.incident.drs.value.MemberSaveQueryRemoveDto;
+import com.song7749.incident.drs.value.MemberSaveQueryVo;
 import com.song7749.incident.drs.value.MemberVo;
+import com.song7749.incident.drs.value.RenewApikeyDto;
 
 /**
  * <pre>
@@ -49,29 +59,105 @@ public interface MemberManager {
 	MemberVo modifyMember(MemberModifyByAdminDto dto);
 
 	/**
-	 * 회원 Database 권한 수정
-	 * @param dto
-	 * @return MemberVo
-	 */
-	MemberVo modifyMember(MemberModfyDatabaseDto dto);
-
-	/**
 	 * 회원 삭제
 	 * @param id
 	 */
 	void removeMember(Long id);
 
+	/**
+	 * 회원 ID 로 조회
+	 * @param id
+	 * @return MemberVo
+	 */
 	MemberVo findMember(Long id);
 
+	/**
+	 * 로그인 ID 로 조회
+	 * @param loginId
+	 * @return MemberVo
+	 */
 	MemberVo findMember(String loginId);
 
+	/**
+	 * 로그인 ID와 패스워드로 조회
+	 * @param loginId
+	 * @param password
+	 * @return MemberVo
+	 */
 	MemberVo findMember(String loginId, String password);
 
-	/**
-	 * MemberVo 검색
-	 * @param dto
-	 * @return List<MemberVo>
-	 */
-	List<MemberVo> findMemberList(MemberFindDto dto);
 
+	/**
+	 * 회원 정보를 조회 한다.
+	 * @param dto
+	 * @param page
+	 * @return
+	 */
+	Page<MemberVo> findMemberList(MemberFindDto dto, Pageable page);
+
+	/**
+	 * 회원의 Query 를 저장 한다.
+	 * @param dto
+	 * @return MemberSaveQueryVo
+	 */
+	MemberSaveQueryVo addMemberSaveQuery(MemberSaveQueryAddDto dto);
+
+	/**
+	 * 회원의 저장된 Query 를 수정 한다.
+	 * @param dto
+	 * @return MemberSaveQueryVo
+	 */
+	MemberSaveQueryVo modifyMemberSaveQuery(MemberSaveQueryModifyDto dto);
+
+
+	/**
+	 * 회원의 저장된 Query 를 삭제 한다.
+	 * @param dto
+	 */
+	void removeMemberSaveQuery(MemberSaveQueryRemoveDto dto);
+
+	/**
+	 * 회원의 저장된 Query 를 조회 한다.
+	 * @param dto
+	 * @param page
+	 * @return
+	 */
+	Page<MemberSaveQueryVo> findMemberSaveQueray(MemberSaveQueryFindDto dto, Pageable page);
+
+	/**
+	 * 회원의 Database 권한 추가
+	 * @param dto
+	 * @return
+	 */
+	MemberDatabaseVo addOrModifyMemberDatabase(MemberDatabaseAddOrModifyDto dto);
+
+	/**
+	 * 회원의 Database 리스트 조회
+	 * @param dto
+	 * @return
+	 */
+	Page<MemberDatabaseVo> findMemberDatabaseList(MemberDatabaseFindDto dto, Pageable page);
+
+	/**
+	 * 회원에게 허용된  Database 리스트를 조회
+	 * DatabaseVo 객체로 변환하여 제공 함.
+	 * @param dto
+	 * @param page
+	 * @return
+	 */
+	Page<DatabaseVo> findDatabaseListByMemberAllow(MemberDatabaseFindDto dto, Pageable page);
+
+	/**
+	 * apikey 를 생성하거나 갱신
+	 * @param dto
+	 * @return
+	 */
+	MemberVo renewApikey(RenewApikeyDto dto);
+
+	/**
+	 * 관리자 apikey 갱신
+	 * @param loginId
+	 * @return
+	 */
+	MemberVo renewApikeyByAdmin(String loginId);
 }

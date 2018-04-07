@@ -6,6 +6,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.modelmapper.ModelMapper;
@@ -14,6 +18,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.song7749.incident.drs.domain.Database;
@@ -21,7 +28,9 @@ import com.song7749.incident.drs.repository.DatabaseRepository;
 import com.song7749.incident.drs.type.Charset;
 import com.song7749.incident.drs.type.DatabaseDriver;
 import com.song7749.incident.drs.value.DatabaseAddDto;
+import com.song7749.incident.drs.value.DatabaseFindDto;
 import com.song7749.incident.drs.value.DatabaseModifyDto;
+import com.song7749.incident.drs.value.DatabaseRemoveDto;
 import com.song7749.incident.drs.value.DatabaseVo;
 
 @RunWith(SpringRunner.class)
@@ -94,11 +103,78 @@ public class DatabaseManagerImplTest {
 		//give
 		DatabaseVo dv = databaseManager.addDatabase(databaseAddDto);
 
+		DatabaseModifyDto dto = new DatabaseModifyDto();
+		dto.setId(dv.getId());
+		dto.setPassword("1234abcd");
 
 		//when
 		Thread.sleep(1000);
-		DatabaseVo rDv = databaseManager.modifyDatabase(mapper.map(dv, DatabaseModifyDto.class));
+		DatabaseVo rDv = databaseManager.modifyDatabase(dto);
 		//then
 		assertNotEquals(dv.getModifyDate(), rDv.getModifyDate());
+	}
+
+	@Test
+	public void testFindDatabaseList() throws Exception {
+		// give
+		List<DatabaseVo> voList = new ArrayList<DatabaseVo>();
+		voList.add(databaseManager.addDatabase(databaseAddDto));
+		voList.add(databaseManager.addDatabase(databaseAddDto));
+		voList.add(databaseManager.addDatabase(databaseAddDto));
+		voList.add(databaseManager.addDatabase(databaseAddDto));
+		voList.add(databaseManager.addDatabase(databaseAddDto));
+
+
+
+		DatabaseFindDto dto = new DatabaseFindDto();
+		Pageable page = PageRequest.of(0, 10);//,Direction.DESC,"id");;
+		// when
+		Page<DatabaseVo> list = databaseManager.findDatabaseList(dto, page);
+		// then
+		assertThat(list.getSize(), equalTo(10));
+		assertThat(list.getContent().size(), equalTo(5));
+
+		// give
+		dto.setId(voList.get(0).getId());
+		dto.setHost(voList.get(0).getHost());
+		// when
+		list = databaseManager.findDatabaseList(dto, page);
+		// then
+		assertThat(list.getSize(), equalTo(10));
+		assertThat(list.getContent().size(), equalTo(1));
+
+		List<Long> ids = voList.stream().map(v -> v.getId()).collect(Collectors.toList());
+
+		// give
+		dto.setIds(ids);
+
+		// when
+		list = databaseManager.findDatabaseList(dto, page);
+
+		// then
+
+		assertThat(list.getSize(), equalTo(10));
+		assertThat(list.getContent().size(), equalTo(5));
+	}
+
+	@Test
+	public void testRemoveDatabase() throws Exception {
+		//give
+		DatabaseVo dv = databaseManager.addDatabase(databaseAddDto);
+		DatabaseRemoveDto dto = new DatabaseRemoveDto();
+		dto.setId(dv.getId());
+
+		//when
+		databaseManager.removeDatabase(dto);
+		//then
+		DatabaseFindDto find = new DatabaseFindDto();
+		find.setId(dv.getId());
+		Pageable page = PageRequest.of(0, 10);//,Direction.DESC,"id");;
+		Page<DatabaseVo> list = databaseManager.findDatabaseList(find, page);
+
+		assertThat(list.getSize(), equalTo(10));
+		assertThat(list.getContent().size(), equalTo(0));
+
+
 	}
 }

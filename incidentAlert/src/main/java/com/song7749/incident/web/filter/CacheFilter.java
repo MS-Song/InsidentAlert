@@ -9,13 +9,15 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletResponse;
 
 /**
  * <pre>
  * Class Name : CacheFilter.java
  * Description : Web browser cache 를 컨트롤 한다.
-*
+* 사용에 대한 매우 주의가 필요하다
+* TODO 운영 서버에 갈때는 꺼야 한다.
 *
 *  Modification Information
 *  Modify Date 		Modifier				Comment
@@ -27,6 +29,8 @@ import javax.servlet.http.HttpServletResponse;
 * @author song7749@gmail.com
 * @since 2018. 2. 25.
 */
+
+@WebFilter(urlPatterns="/static/**")
 public class CacheFilter implements Filter {
 
     @Override

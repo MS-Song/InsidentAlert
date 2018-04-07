@@ -5,15 +5,13 @@ import javax.persistence.Enumerated;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
-import org.hibernate.validator.constraints.Length;
 import org.springframework.boot.jdbc.DatabaseDriver;
 
-import com.song7749.base.BaseObject;
-import com.song7749.base.Dto;
+import com.song7749.base.AbstractDto;
 import com.song7749.incident.drs.type.Charset;
 
 
-public class DatabaseModifyDto extends BaseObject implements Dto {
+public class DatabaseModifyDto  extends AbstractDto {
 
 	private static final long serialVersionUID = -6233451074229529873L;
 
@@ -21,19 +19,14 @@ public class DatabaseModifyDto extends BaseObject implements Dto {
 	@Min(1L)
 	private Long id;
 
-	@Length(max=120)
 	private String host;
 
-	@Length(max=120)
 	private String hostAlias;
 
-	@Length(max=120)
 	private String schemaName;
 
-	@Length(max=60)
 	private String account;
 
-	@Length(min=4,max=20)
 	private String password;
 
 	@Enumerated(EnumType.STRING)
@@ -42,7 +35,6 @@ public class DatabaseModifyDto extends BaseObject implements Dto {
 	@Enumerated(EnumType.STRING)
 	private Charset charset;
 
-	@Length(max=5)
 	private String port;
 
 	public DatabaseModifyDto() {}

@@ -43,7 +43,7 @@ public enum DatabaseDriver {
 			// driverName
 			"com.mysql.jdbc.Driver",
 			// connect url
-			"jdbc:mysql://{host}:{port}/{schemaName}?autoReconnect=true&useUnicode=true&createDatabaseIfNotExist=true&characterEncoding={charset}",
+			"jdbc:mysql://{host}:{port}/{schemaName}?autoReconnect=true&useUnicode=true&createDatabaseIfNotExist=true&characterEncoding={charset}&useSSL=false",
 			// validate query
 			"select 1 from dual",
 			// table list
@@ -112,7 +112,8 @@ public enum DatabaseDriver {
 			// index list
 			"SELECT a.OWNER, a.INDEX_NAME, a.INDEX_TYPE, a.UNIQUENESS, a.NUM_ROWS CARDINALITY , b.COLUMN_NAME, b.COLUMN_POSITION,b.DESCEND FROM ALL_INDEXES a, ALL_IND_COLUMNS b WHERE a.index_name = b.index_name  AND a.table_name='{name}'",
 			// explain
-			"SELECT * from table(dbms_xplan.display('plan_table',null,'typical',null))",
+			//"SELECT * from table(dbms_xplan.display('plan_table',null,'typical',null))",
+			null,
 			// view list
 			"SELECT uv.VIEW_NAME as NAME, utc.COMMENTS AS COMMENTS, uo.LAST_DDL_TIME AS LAST_UPDATE_TIME, uo.STATUS FROM  USER_VIEWS uv LEFT JOIN USER_TAB_COMMENTS utc ON (uv.VIEW_NAME=utc.TABLE_NAME and utc.TABLE_TYPE='VIEW') JOIN USER_OBJECTS uo ON (uv.VIEW_NAME=uo.OBJECT_NAME AND uo.object_type = 'VIEW') order by NAME asc",
 			// view detail
@@ -324,14 +325,13 @@ public enum DatabaseDriver {
 
 	/**
 	 * Connect url 정보 조회
-	 * @param serverInfo
+	 * @param database
 	 * @return String
 	 */
 	public String getUrl(Database database) {
 		try {
 			return repalceDatabase(database, url);
 		} catch (Exception e) {
-			e.printStackTrace();
 			throw new IllegalArgumentException(e.getCause());
 		}
 	}
@@ -347,52 +347,49 @@ public enum DatabaseDriver {
 
 	/**
 	 * table list Query 조회
-	 * @param serverInfo
+	 * @param database
 	 * @return
 	 */
 	public String getTableListQuery(Database database) {
 		try {
 			return repalceDatabase(database, tableListQuery);
 		} catch (Exception e) {
-			e.printStackTrace();
-			throw new IllegalArgumentException(e.getCause());
+			throw new IllegalArgumentException(e.getMessage());
 		}
 
 	}
 
 	/**
 	 * field list Query 조회
-	 * @param serverInfo
+	 * @param database
 	 * @return String
 	 */
 	public String getFieldListQueryQuery(Database database) {
 		try {
 			return repalceDatabase(database, fieldListQuery);
 		} catch (Exception e) {
-			e.printStackTrace();
-			throw new IllegalArgumentException(e.getCause());
+			throw new IllegalArgumentException(e.getMessage());
 		}
 
 	}
 
 	/**
 	 * index list Query 조회
-	 * @param serverInfo
+	 * @param database
 	 * @return String
 	 */
 	public String getIndexListQuery(Database database) {
 		try {
 			return repalceDatabase(database, indexListQuery);
 		} catch (Exception e) {
-			e.printStackTrace();
-			throw new IllegalArgumentException(e.getCause());
+			throw new IllegalArgumentException(e.getMessage());
 		}
 
 	}
 
 	/**
 	 * view list Query 조회
-	 * @param serverInfo
+	 * @param database
 	 * @return String
 	 */
 	public String getViewListQuery(Database database) {
@@ -405,7 +402,7 @@ public enum DatabaseDriver {
 
 	/**
 	 * view detail Query 조회
-	 * @param serverInfo
+	 * @param database
 	 * @param name
 	 * @return String
 	 */
@@ -419,7 +416,7 @@ public enum DatabaseDriver {
 
 	/**
 	 * view source Query 조회
-	 * @param serverInfo
+	 * @param database
 	 * @param name
 	 * @return String
 	 */
@@ -433,7 +430,7 @@ public enum DatabaseDriver {
 
 	/**
 	 * procedure list query
-	 * @param serverInfo
+	 * @param database
 	 * @return String
 	 */
 	public String getProcedureListQuery(Database database) {
@@ -446,7 +443,7 @@ public enum DatabaseDriver {
 
 	/**
 	 * procedure detail query
-	 * @param serverInfo
+	 * @param database
 	 * @return String
 	 */
 	public String getProcedureDetailQuery(Database database) {
@@ -459,7 +456,7 @@ public enum DatabaseDriver {
 
 	/**
 	 * procedure source query
-	 * @param serverInfo
+	 * @param database
 	 * @return String
 	 */
 	public String getProcedureSourceQuery(Database database){
@@ -605,12 +602,16 @@ public enum DatabaseDriver {
 	 * @return boolean
 	 */
 	public boolean isAffectedRowCommand(String query) {
+		String[] queries = query.replace("\t", " ").replace("\n", " ").split(" ");
+
 		for(String keyword : getAffectedRowCommands()) {
-			logger.trace(format("{}", "키워드"), keyword);
-			logger.trace(format("{}", "쿼리"), query);
-			if(query.toLowerCase().contains(keyword.toLowerCase())) {
-				return true;
+			for(String q : queries) {
+//				logger.trace(format("{}={}", "affected row 를 발생시키는 키워드 검증"),keyword, q);
+				if(keyword.toLowerCase().equals(q.toLowerCase())) {
+					return true;
+				}
 			}
+
 		}
 		return false;
 	}
@@ -624,7 +625,7 @@ public enum DatabaseDriver {
 				str = StringUtils.replacePatten("\\{" + f.getName() + "\\}",f.get(database).toString(), str);
 			}
 		}
-		logger.trace(format("{}", "jdbc connection url"), str);
+		logger.trace(format("{}", "Replace BY Database"), str);
 		return str;
 	}
 }

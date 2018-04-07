@@ -2,8 +2,13 @@ package com.song7749.incident.drs.service;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import com.song7749.incident.drs.value.DatabaseAddDto;
+import com.song7749.incident.drs.value.DatabaseFindDto;
 import com.song7749.incident.drs.value.DatabaseModifyDto;
+import com.song7749.incident.drs.value.DatabaseRemoveDto;
 import com.song7749.incident.drs.value.DatabaseVo;
 
 /**
@@ -28,7 +33,9 @@ public interface DatabaseManager {
 
 	DatabaseVo modifyDatabase(DatabaseModifyDto dto);
 
-	Integer AddOrModifyDatabaseFasade(List<DatabaseModifyDto> dtos);
+	Integer addOrModifyDatabaseFasade(List<DatabaseModifyDto> dtos);
 
-	void deleteDatabase(Long id);
+	void removeDatabase(DatabaseRemoveDto dto);
+
+	Page<DatabaseVo> findDatabaseList(DatabaseFindDto dto, Pageable page);
 }

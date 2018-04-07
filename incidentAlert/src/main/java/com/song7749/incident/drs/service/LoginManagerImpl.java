@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.song7749.incident.annotation.Login;
 import com.song7749.incident.drs.domain.Member;
 import com.song7749.incident.drs.repository.MemberRepository;
+import com.song7749.incident.drs.session.LoginSession;
 import com.song7749.incident.drs.type.AuthType;
 import com.song7749.incident.drs.value.LogLoginAddDto;
 import com.song7749.incident.drs.value.LoginAuthVo;
@@ -67,6 +69,13 @@ public class LoginManagerImpl implements LoginManager{
 	@Autowired
 	LogManager logManager;
 
+	@Autowired
+	LoginSession loginSession;
+
+	@Autowired
+	ModelMapper mapper;
+
+
 	@Override
 	public boolean isLogin(HttpServletRequest request, HttpServletResponse response) {
 		return null!=getLoginID(request,response) ? true : false;
@@ -81,12 +90,15 @@ public class LoginManagerImpl implements LoginManager{
 		// 회원 정보가 조회가 되면.. 회원이 존재함.
 		if(null != member){
 			// 로그인 cookie 정보를 생성 한다.
-			LoginAuthVo lav = new LoginAuthVo(member.getLoginId(), new Date(System.currentTimeMillis()));
+			LoginAuthVo lav = mapper.map(member, LoginAuthVo.class);
+			lav.setSessionCreateDate(new Date(System.currentTimeMillis()));
+			lav.setIp(request.getRemoteAddr());
+
 			String cipherValue = null;
 			try {
 				cipherValue=CryptoAES.encrypt(ObjectJsonUtil.getJsonStringByObject(lav));
 			} catch (Exception e) {
-				throw new IllegalArgumentException("회원 인증 생성 실패. 관리자에게 문의 하세요");
+				throw new IllegalArgumentException(e.getMessage());
 			}
 
 			Cookie cipherCookie = new Cookie(cipher,cipherValue);
@@ -121,40 +133,80 @@ public class LoginManagerImpl implements LoginManager{
 
 	@Override
 	public String getLoginID(HttpServletRequest request, HttpServletResponse response) {
-		String cipherValue = null;
-		Cookie[] cookie = request.getCookies();
+		// 인증키가 있는 경우
+		if(null!=request.getParameter("apikey")
+				&& !request.getParameter("apikey").isEmpty()) {
+			// 인증키를 가져온다.
+			String apikey = request.getParameter("apikey");
+			logger.debug(format("value : {} , size : {}","login apikey inifo"),apikey,apikey.length());
 
-		// 쿠키에서 cipher 를 찾아낸다.
-		if (cookie != null) {
-			for (int i=0; i<cookie.length; i++) {
-				if (null != cookie[i]
-						&& cookie[i].getName().equals(this.cipher)) {
+			// 인증 객체로 변경 한다.
+			LoginAuthVo lav = null;
+			try {
+				lav = (LoginAuthVo) ObjectJsonUtil.getObjectByJsonString(CryptoAES.decrypt(apikey),LoginAuthVo.class);
+				logger.debug(format("{}","Login apikey 복호화 완료"),lav);
+			} catch (Exception e) {
+				throw new IllegalArgumentException("apikey 정보 복호화 실패. 관리자에게 문의 하시기 바랍니다.");
+			}
+			// Login Session 도 생성 한다.
+			try {
+				if(!loginSession.isLogin()) {
+					logger.debug(format("{}","apikey Session create"),lav.getMember(mapper));
+					loginSession.setSesseion(lav);
+				}
+			} catch (Exception e) {
+				logger.info(format("{}", "apikey Session Error Message"),e.getMessage());
+			}
+			return lav.getLoginId();
 
-					cipherValue = cookie[i].getValue();
-					// 복호화 된 ID 정보를 리턴한다.
-					logger.debug(format("value : {} , size : {}","login cookie inifo"),cipherValue,cipherValue.length());
+		} else { // cookie 가 있는 경우
 
-					if(!StringUtils.isBlank(cipherValue) && cipherValue.length()>=24){
-						LoginAuthVo lav = null;
-						try {
-							lav = (LoginAuthVo) ObjectJsonUtil.getObjectByJsonString(CryptoAES.decrypt(cipherValue),LoginAuthVo.class);
-							logger.debug(format("{}","Login Cookie 복호화 완료"),lav);
-						} catch (Exception e) {
-							throw new IllegalArgumentException("로그인 정보 복호화 실패. 관리자에게 문의 하시기 바랍니다.");
+			String cipherValue = null;
+			Cookie[] cookie = request.getCookies();
+
+			// 쿠키에서 cipher 를 찾아낸다.
+			if (cookie != null) {
+				for (int i=0; i<cookie.length; i++) {
+					if (null != cookie[i]
+							&& cookie[i].getName().equals(this.cipher)) {
+
+						cipherValue = cookie[i].getValue();
+						// 복호화 된 ID 정보를 리턴한다.
+						logger.debug(format("value : {} , size : {}","login cookie inifo"),cipherValue,cipherValue.length());
+
+						if(!StringUtils.isBlank(cipherValue) && cipherValue.length()>=24){
+							LoginAuthVo lav = null;
+							try {
+								lav = (LoginAuthVo) ObjectJsonUtil.getObjectByJsonString(CryptoAES.decrypt(cipherValue),LoginAuthVo.class);
+								logger.debug(format("{}","Login Cookie 복호화 완료"),lav);
+							} catch (Exception e) {
+								throw new IllegalArgumentException("로그인 정보 복호화 실패. 관리자에게 문의 하시기 바랍니다.");
+							}
+							// session 갱신 시간 이후인 경우 DB의 인증 생성 시간과 비교 한다.
+							if(lav.getSessionCreateDate().before(new Date(System.currentTimeMillis() - sessionChecktime*1000))) {
+								// TODO 로그인 기록을 확인하여 기록이 정상 적이라면 cookie 의 시간을 갱신 한다.
+								lav.setSessionCreateDate(new Date(System.currentTimeMillis()));
+								logger.trace(format("{}", "session 갱신"),lav);
+
+							}
+							// session 의 IP 와 현재 IP 비교
+
+							// Login Session 도 생성 한다.
+							try {
+								if(!loginSession.isLogin()) {
+									logger.debug(format("{}","Login Session create"),lav.getMember(mapper));
+									loginSession.setSesseion(lav);
+								}
+							} catch (Exception e) {
+								logger.info(format("{}", "Login Session Error Message"),e.getMessage());
+							}
+							return lav.getLoginId();
 						}
-						// session 갱신 시간 이후인 경우 DB의 인증 생성 시간과 비교 한다.
-						if(lav.getCreateDate().before(new Date(System.currentTimeMillis() - sessionChecktime*1000))) {
-							// TODO 로그인 기록을 확인하여 기록이 정상 적이라면 cookie 의 시간을 갱신 한다.
-							lav.setCreateDate(new Date(System.currentTimeMillis()));
-							logger.trace(format("{}", "session 갱신"),lav);
-
-						}
-						return lav.getLoginId();
 					}
 				}
 			}
+			return null; // else end
 		}
-		return null;
 	}
 
 	/**
@@ -186,6 +238,7 @@ public class LoginManagerImpl implements LoginManager{
 		return isIdentification(request, response, memberRepository.findById(id).get().getLoginId());
 	}
 
+	@Transactional(readOnly=true)
 	@Override
 	public boolean isIdentification(HttpServletRequest request, HttpServletResponse response, String loginId) {
 		String rLoginId = getLoginID(request, response);

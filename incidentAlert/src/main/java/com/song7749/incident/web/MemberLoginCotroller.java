@@ -1,5 +1,7 @@
 package com.song7749.incident.web;
 
+import static com.song7749.util.LogMessageFormatter.format;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -11,15 +13,16 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.song7749.base.MessageVo;
+import com.song7749.incident.annotation.Login;
 import com.song7749.incident.drs.service.LoginManager;
 import com.song7749.incident.drs.service.MemberManager;
+import com.song7749.incident.drs.session.LoginSession;
+import com.song7749.incident.drs.type.AuthType;
 import com.song7749.incident.drs.value.LoginDoDto;
 import com.song7749.incident.drs.value.MemberVo;
-import com.song7749.util.StringUtils;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -39,11 +42,13 @@ public class MemberLoginCotroller {
 	@Autowired
 	MemberManager memberManager;
 
+	@Autowired
+	LoginSession session;
+
 	@ApiOperation(value = "회원 로그인"
 			, notes = "회원 ID/PASSWORD 를 받아서 로그인 cookie 를 생성 한다."
 			, response=MessageVo.class)
 	@PostMapping("/doLogin")
-	@ResponseBody
 	public MessageVo doLogin(
 			HttpServletRequest request,
 			HttpServletResponse response,
@@ -62,7 +67,6 @@ public class MemberLoginCotroller {
 			, notes = "로그 아웃 프로세스를 실행한다."
 			, response=MessageVo.class)
 	@PostMapping("/doLogout")
-	@ResponseBody
 	public MessageVo doLogout(HttpServletResponse response){
 
 		loginManager.doLogout(response);
@@ -74,17 +78,9 @@ public class MemberLoginCotroller {
 			, notes = "cookie 에 저장되어 있는 로그인 정보를 획득한다."
 			, response=MemberVo.class)
 	@GetMapping("/getLogin")
-	@ResponseBody
+	@Login({ AuthType.NORMAL, AuthType.ADMIN })
 	public MemberVo getLogin(HttpServletRequest request, HttpServletResponse response){
-
-		String loginId = loginManager.getLoginID(request,response);
-
-		MemberVo vo = null;
-		if(!StringUtils.isBlank(loginId)){
-			vo=memberManager.findMember(loginId);
-		} else {
-			vo = new MemberVo();
-		}
-		return vo;
+		logger.trace(format("{}", "Login Session Login ID"),session.getLogin().getLoginId());
+		return memberManager.findMember(session.getLogin().getLoginId());
 	}
 }

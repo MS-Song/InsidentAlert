@@ -4,8 +4,7 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
-import com.song7749.base.BaseObject;
-import com.song7749.base.Dto;
+import com.song7749.base.AbstractDto;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -26,7 +25,7 @@ import io.swagger.annotations.ApiModelProperty;
 * @since 2015. 5. 13.
 */
 @ApiModel
-public class LoginDoDto extends BaseObject implements Dto{
+public class LoginDoDto  extends AbstractDto {
 
 	private static final long serialVersionUID = 2494197854525312202L;
 

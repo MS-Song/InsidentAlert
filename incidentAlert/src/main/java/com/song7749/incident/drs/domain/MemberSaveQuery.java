@@ -17,9 +17,11 @@ import javax.validation.constraints.Size;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.modelmapper.ModelMapper;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.song7749.base.Entities;
+import com.song7749.incident.drs.value.MemberSaveQueryVo;
 
 /**
  * <pre>
@@ -47,7 +49,7 @@ public class MemberSaveQuery extends Entities {
 	@Id
 	@Column(name = "member_save_query_id", nullable = false, updatable = false)
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Integer id;
+	private Long id;
 
 	@Column
 	@NotBlank
@@ -56,7 +58,7 @@ public class MemberSaveQuery extends Entities {
 
 	@Column
 	@NotBlank
-	@Size(min = 10)
+	@Size(min = 10, max=8000)
 	private String query;
 
 	@Column(nullable = false, updatable = false)
@@ -99,11 +101,11 @@ public class MemberSaveQuery extends Entities {
 		this.database = database;
 	}
 
-	public Integer getId() {
+	public Long getId() {
 		return id;
 	}
 
-	public void setId(Integer id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 
@@ -153,6 +155,10 @@ public class MemberSaveQuery extends Entities {
 
 	public void setDatabase(Database database) {
 		this.database = database;
+	}
+
+	public MemberSaveQueryVo getMemberSaveQueryVo(ModelMapper mapper) {
+		return mapper.map(this, MemberSaveQueryVo.class);
 	}
 
 	@Override

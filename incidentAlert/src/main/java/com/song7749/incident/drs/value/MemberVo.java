@@ -9,6 +9,10 @@ import com.song7749.incident.drs.type.AuthType;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
+/**
+ * @author song7749@gmail.com
+ *
+ */
 @ApiModel("회원정보")
 public class MemberVo extends AbstractVo {
 
@@ -21,7 +25,7 @@ public class MemberVo extends AbstractVo {
 	private String loginId;
 
 	@ApiModelProperty("인증키")
-	private String certificationKey;
+	private String apikey;
 
 	@ApiModelProperty("패스워드 찾기 질문")
 	private String passwordQuestion;
@@ -61,11 +65,11 @@ public class MemberVo extends AbstractVo {
 	 * @param modifyDate
 	 * @param lastLoginDate
 	 */
-	public MemberVo(Long id, String loginId, String certificationKey, String passwordQuestion, String teamName,
+	public MemberVo(Long id, String loginId, String apikey, String passwordQuestion, String teamName,
 			String name, AuthType authType, Date createDate, Date modifyDate, Date lastLoginDate) {
 		this.id = id;
 		this.loginId = loginId;
-		this.certificationKey = certificationKey;
+		this.apikey = apikey;
 		this.passwordQuestion = passwordQuestion;
 		this.teamName = teamName;
 		this.name = name;
@@ -91,12 +95,12 @@ public class MemberVo extends AbstractVo {
 		this.loginId = loginId;
 	}
 
-	public String getCertificationKey() {
-		return certificationKey;
+	public String getApikey() {
+		return apikey;
 	}
 
-	public void setCertificationKey(String certificationKey) {
-		this.certificationKey = certificationKey;
+	public void setApikey(String apikey) {
+		this.apikey = apikey;
 	}
 
 	public String getPasswordQuestion() {

@@ -12,7 +12,10 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 
+import org.modelmapper.ModelMapper;
+
 import com.song7749.base.Entities;
+import com.song7749.incident.drs.value.MemberDatabaseVo;
 
 /**
  * <pre>
@@ -55,12 +58,27 @@ public class MemberDatabase extends Entities{
 	public MemberDatabase() {}
 
 	/**
+	 * @param member
+	 */
+	public MemberDatabase(@NotNull Member member) {
+		this.member = member;
+	}
+
+	/**
 	 * @param database
 	 */
 	public MemberDatabase(@NotNull Database database) {
 		this.database = database;
 	}
 
+	/**
+	 * @param database
+	 * @param member
+	 */
+	public MemberDatabase(@NotNull Database database, @NotNull Member member) {
+		this.database = database;
+		this.member = member;
+	}
 
 	public Long getId() {
 		return id;
@@ -89,6 +107,10 @@ public class MemberDatabase extends Entities{
 
 	public void setMember(Member member) {
 		this.member = member;
+	}
+
+	public MemberDatabaseVo getMemberDatabaseVo(ModelMapper mapper) {
+		return mapper.map(this, MemberDatabaseVo.class);
 	}
 
 	@Override

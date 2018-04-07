@@ -7,15 +7,14 @@ import javax.validation.constraints.Size;
 import org.hibernate.validator.constraints.Length;
 import org.modelmapper.ModelMapper;
 
-import com.song7749.base.BaseObject;
-import com.song7749.base.Dto;
+import com.song7749.base.AbstractDto;
 import com.song7749.incident.drs.domain.Member;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 @ApiModel("회원등록")
-public class MemberAddDto  extends BaseObject implements Dto{
+public class MemberAddDto  extends AbstractDto {
 
 	private static final long serialVersionUID = 4870923370488884811L;
 

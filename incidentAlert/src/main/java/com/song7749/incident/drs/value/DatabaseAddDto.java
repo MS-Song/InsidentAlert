@@ -7,8 +7,7 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.Length;
 
-import com.song7749.base.BaseObject;
-import com.song7749.base.Dto;
+import com.song7749.base.AbstractDto;
 import com.song7749.incident.drs.type.Charset;
 import com.song7749.incident.drs.type.DatabaseDriver;
 
@@ -16,7 +15,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiParam;
 
 @ApiModel("데이터베이스 입력 모델")
-public class DatabaseAddDto extends BaseObject implements Dto{
+public class DatabaseAddDto  extends AbstractDto {
 
 	private static final long serialVersionUID = 2469669840827588753L;
 

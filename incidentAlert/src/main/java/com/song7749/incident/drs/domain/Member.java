@@ -69,7 +69,7 @@ public class Member extends Entities {
 
 	@Column(nullable = true, updatable = true)
 	@Length(max = 255)
-	private String certificationKey;
+	private String apikey;
 
 	@Column(nullable = false)
 	@Length(min = 8, max = 255)
@@ -98,9 +98,9 @@ public class Member extends Entities {
 	@NotBlank
 	private String name;
 
-	@Column(nullable=false)
+	@Column(nullable=true)
 	@Enumerated(EnumType.STRING)
-	private AuthType authType = AuthType.NORMAL;
+	private AuthType authType;
 
 	@Column(nullable = false, updatable = false)
 	@CreationTimestamp
@@ -125,6 +125,13 @@ public class Member extends Entities {
 	private List<MemberSaveQuery> memberSaveQueryList = new ArrayList<MemberSaveQuery>();
 
 	public Member() {}
+
+	/**
+	 * @param id
+	 */
+	public Member(Long id) {
+		this.id = id;
+	}
 
 	/**
 	 * @param loginId
@@ -160,8 +167,8 @@ public class Member extends Entities {
 	/**
 	 * @param certificationKey
 	 */
-	public Member(String certificationKey) {
-		this.certificationKey = certificationKey;
+	public Member(String apikey) {
+		this.apikey = apikey;
 	}
 
 	public Long getId() {
@@ -286,12 +293,12 @@ public class Member extends Entities {
 		this.memberSaveQueryList.add(memberSaveQuery);
 	}
 
-	public String getCertificationKey() {
-		return certificationKey;
+	public String getApikey() {
+		return apikey;
 	}
 
-	public void setCertificationKey(String certificationKey) {
-		this.certificationKey = certificationKey;
+	public void setApikey(String apikey) {
+		this.apikey = apikey;
 	}
 
 	public MemberVo getMemberVo(ModelMapper mapper) {

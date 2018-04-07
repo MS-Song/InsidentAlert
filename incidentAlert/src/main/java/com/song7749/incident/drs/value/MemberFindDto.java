@@ -1,7 +1,10 @@
 package com.song7749.incident.drs.value;
 
-import com.song7749.base.AbstractFindDto;
+import com.song7749.base.AbstractDto;
 import com.song7749.base.Compare;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * <pre>
@@ -19,26 +22,57 @@ import com.song7749.base.Compare;
 * @author song7749@gmail.com
 * @since 2018. 2. 27.
 */
-
-public class MemberFindDto extends AbstractFindDto {
+@ApiModel("회원정보 조회")
+public class MemberFindDto extends AbstractDto {
 
 	private static final long serialVersionUID = -111258667094644234L;
 
+	@ApiModelProperty("회원ID")
 	private Long id;
 
+	@ApiModelProperty("로그인ID")
 	private String loginId;
+
+	@ApiModelProperty(value="로그인 ID 조건",example="like , =  외 적당한 조건을 넣는다.")
 	private Compare loginIdCompare = Compare.EQUAL;
 
+	@ApiModelProperty("인증키")
 	private String certificationKey;
 
+	@ApiModelProperty("팀명")
 	private String teamName;
+	@ApiModelProperty(value="팀명 조건",example="like , =  외 적당한 조건을 넣는다.")
 	private Compare teamNameCompare = Compare.EQUAL;
 
+	@ApiModelProperty("성명")
 	private String name;
+	@ApiModelProperty(value="성명 조건",example="like , =  외 적당한 조건을 넣는다.")
 	private Compare nameCompare = Compare.EQUAL;
 
-
 	public MemberFindDto() {}
+
+	/**
+	 * @param id
+	 */
+	public MemberFindDto(Long id) {
+		this.id = id;
+	}
+
+	/**
+	 * @param loginId
+	 */
+	public MemberFindDto(String loginId) {
+		this.loginId = loginId;
+	}
+
+	/**
+	 * @param name
+	 * @param nameCompare
+	 */
+	public MemberFindDto(String name, Compare nameCompare) {
+		this.name = name;
+		this.nameCompare = nameCompare;
+	}
 
 	/**
 	 * @param id

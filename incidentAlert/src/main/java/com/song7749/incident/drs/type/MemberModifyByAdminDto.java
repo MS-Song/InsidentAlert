@@ -33,6 +33,11 @@ public class MemberModifyByAdminDto extends MemberModifyDto {
 
 	public MemberModifyByAdminDto() {}
 
+	public MemberModifyByAdminDto(Long id, AuthType authType) {
+		super(id);
+		this.authType = authType;
+	}
+
 	/**
 	 * @param id
 	 * @param changeCertificationKey
@@ -42,9 +47,9 @@ public class MemberModifyByAdminDto extends MemberModifyDto {
 	 * @param teamName
 	 * @param name
 	 */
-	public MemberModifyByAdminDto(Long id, Boolean changeCertificationKey, String password, String passwordQuestion,
+	public MemberModifyByAdminDto(Long id, String password, String passwordQuestion,
 			String passwordAnswer, String teamName, String name, AuthType authType) {
-		super(id, changeCertificationKey, password, passwordQuestion, passwordAnswer, teamName, name);
+		super(id, password, passwordQuestion, passwordAnswer, teamName, name);
 		this.authType=authType;
 	}
 

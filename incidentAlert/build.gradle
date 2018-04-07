@@ -1,11 +1,12 @@
 buildscript {
 	ext {
-		springBootVersion = '2.0.0.M7'
+		springBootVersion = '2.0.0.RELEASE'
 	}
 	repositories {
 		mavenCentral()
 		maven { url "https://repo.spring.io/snapshot" }
 		maven { url "https://repo.spring.io/milestone" }
+
 	}
 	dependencies {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
@@ -25,6 +26,7 @@ repositories {
 	mavenCentral()
 	maven { url "https://repo.spring.io/milestone" }
 	maven { url "https://repo.spring.io/snapshot" }
+	maven { url "https://code.lds.org/nexus/content/groups/main-repo" }
 }
 
 
@@ -33,7 +35,6 @@ dependencies {
 	compile('org.springframework.boot:spring-boot-starter-cache')
 	compile('org.springframework.boot:spring-boot-starter-data-jpa')
 	compile('org.springframework.boot:spring-boot-starter-mail')
-	compile('org.springframework.shell:spring-shell-starter:2.0.0.M2')
 	compile('org.springframework.boot:spring-boot-starter-validation')
 	compile('org.springframework.boot:spring-boot-starter-web')
 	compile('org.apache.commons:commons-lang3')
@@ -43,6 +44,9 @@ dependencies {
     compile('io.springfox:springfox-swagger2:2.8.0')
     compile('io.springfox:springfox-swagger-ui:2.8.0')
     compile('org.modelmapper:modelmapper:1.1.2')
+    compile ('mysql:mysql-connector-java')
+	compile ('com.oracle:ojdbc6:11.2.0.3')
+	compile("org.springframework.boot:spring-boot-devtools")
 	runtime('com.h2database:h2')
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 	testCompile('org.springframework.restdocs:spring-restdocs-mockmvc')

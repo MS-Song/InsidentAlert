@@ -2,11 +2,10 @@ package com.song7749.incident.drs.value;
 
 import java.util.Date;
 
-import org.springframework.boot.jdbc.DatabaseDriver;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.song7749.base.AbstractVo;
 import com.song7749.incident.drs.type.Charset;
+import com.song7749.incident.drs.type.DatabaseDriver;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -30,9 +29,6 @@ public class DatabaseVo extends AbstractVo {
 
 	@ApiModelProperty("Account")
 	private String account;
-
-	@ApiModelProperty("Password")
-	private String password;
 
 	@ApiModelProperty("Driver")
 	private DatabaseDriver driver;
@@ -74,7 +70,6 @@ public class DatabaseVo extends AbstractVo {
 		this.hostAlias = hostAlias;
 		this.schemaName = schemaName;
 		this.account = account;
-		this.password = password;
 		this.driver = driver;
 		this.charset = charset;
 		this.port = port;
@@ -160,15 +155,5 @@ public class DatabaseVo extends AbstractVo {
 
 	public void setModifyDate(Date modifyDate) {
 		this.modifyDate = modifyDate;
-	}
-
-
-	public String getPassword() {
-		return password;
-	}
-
-
-	public void setPassword(String password) {
-		this.password = password;
 	}
 }

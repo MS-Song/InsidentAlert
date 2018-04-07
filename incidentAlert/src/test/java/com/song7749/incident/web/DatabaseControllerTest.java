@@ -3,7 +3,9 @@ package com.song7749.incident.web;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -26,10 +28,14 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.song7749.incident.drs.service.DatabaseManager;
 import com.song7749.incident.drs.service.MemberManager;
+import com.song7749.incident.drs.type.AuthType;
 import com.song7749.incident.drs.type.Charset;
 import com.song7749.incident.drs.type.DatabaseDriver;
+import com.song7749.incident.drs.type.MemberModifyByAdminDto;
 import com.song7749.incident.drs.value.DatabaseAddDto;
+import com.song7749.incident.drs.value.DatabaseVo;
 import com.song7749.incident.drs.value.MemberAddDto;
+import com.song7749.incident.drs.value.MemberVo;
 
 @SuppressWarnings("unchecked")
 public class DatabaseControllerTest extends ControllerTest{
@@ -51,16 +57,16 @@ public class DatabaseControllerTest extends ControllerTest{
 	MemberManager memberManager;
 
 	// 테스트를 위한 회원 등록
-	MemberAddDto mad = new MemberAddDto(
-			"song12345678@gmail.com",
-			"123456789",
-			"passwordQuestion",
-			"passwordAnswer",
-			"teamName",
-			"name");
+	MemberAddDto dto = new MemberAddDto(
+			"song1234@gmail.com"
+			, "123456789"
+			, "passwordQuestion"
+			, "passwordAnswer"
+			, "teamName"
+			, "name");
 
 	// 테스트를 위한 DB 등록
-	DatabaseAddDto dto = new DatabaseAddDto(
+	DatabaseAddDto dad = new DatabaseAddDto(
 			"testHost",
 			"testHostAlias",
 			"testSchemaName",
@@ -70,39 +76,81 @@ public class DatabaseControllerTest extends ControllerTest{
 			Charset.UTF8,
 			"3306");
 
+	MemberVo vo;
+	DatabaseVo dv;
+	Cookie cookie;
+
 	@Before
-	public void setup(){
+	public void setup() throws Exception{
 		// 테스트를 위한 회원 등록
-		memberManager.addMemeber(mad);
+		vo = memberManager.addMemeber(dto);
+		MemberModifyByAdminDto modifyDto = new MemberModifyByAdminDto();
+		modifyDto.setId(vo.getId());
+		modifyDto.setAuthType(AuthType.ADMIN);
+		memberManager.modifyMember(modifyDto);
+
 		// 테스트를 위한 databae 등록
-		databaseManager.addDatabase(dto);
+		dv = databaseManager.addDatabase(dad);
+
+		// give - 로그인 실행
+		drb=post("/member/doLogin").accept(MediaType.APPLICATION_JSON).locale(Locale.KOREA)
+				.param("loginId", dto.getLoginId())
+				.param("password", dto.getPassword())
+				;
+		// when
+		result = mvc.perform(drb)
+				.andExpect(status().isOk())
+				.andReturn();
+		// login cookie 생성
+		cookie = new Cookie("cipher", result.getResponse().getCookie("cipher").getValue());
+	}
+
+
+	@Test
+	public void testDatabaseAdd_No_Login() throws Exception {
+
+		// give
+		drb=post("/database/add").accept(MediaType.APPLICATION_JSON).locale(Locale.KOREA)
+				.param("host", dad.getHost())
+				.param("hostAlias", dad.getHostAlias())
+				.param("schemaName", dad.getSchemaName())
+				.param("account", dad.getAccount())
+				.param("password", dad.getPassword())
+				.param("port", dad.getPort())
+				.param("driver", dad.getDriver().toString())
+				.param("charset", dad.getCharset().toString())
+				;
+
+		// when
+		result = mvc.perform(drb)
+				.andExpect(status().isMethodNotAllowed())
+				.andDo(print())
+				.andReturn();
+
+		 responseObject = new ObjectMapper().readValue(result.getResponse().getContentAsString(),HashMap.class);
+
+		 // then
+		 assertThat(responseObject.get("httpStatus"), equalTo(405));
+		 assertThat(responseObject.get("message"), equalTo("로그인이 필요한 서비스입니다. 로그인 해주시기 바랍니다."));
 	}
 
 	@Test
 	public void testDatabaseAdd() throws Exception {
 
 		// give
-		// -- 로그인 처리
-		drb=post("/member/doLogin").accept(MediaType.APPLICATION_JSON).locale(Locale.KOREA)
-				.param("loginId", mad.getLoginId())
-				.param("password", mad.getPassword())
-				;
-		//-- 로그인 request
-		result = mvc.perform(drb).andExpect(status().isOk()).andDo(print()).andReturn();
-
 		drb=post("/database/add").accept(MediaType.APPLICATION_JSON).locale(Locale.KOREA)
-				.param("host", dto.getHost())
-				.param("hostAlias", dto.getHostAlias())
-				.param("schemaName", dto.getSchemaName())
-				.param("account", dto.getAccount())
-				.param("password", dto.getPassword())
-				.param("port", dto.getPort())
-				.param("driver", dto.getDriver().toString())
-				.param("charset", dto.getCharset().toString())
+				.param("host", dad.getHost())
+				.param("hostAlias", dad.getHostAlias())
+				.param("schemaName", dad.getSchemaName())
+				.param("account", dad.getAccount())
+				.param("password", dad.getPassword())
+				.param("port", dad.getPort())
+				.param("driver", dad.getDriver().toString())
+				.param("charset", dad.getCharset().toString())
 				;
 
 		// 로그인 cookie 정보 추가
-		drb.cookie(new Cookie("cipher", result.getResponse().getCookie("cipher").getValue()));
+		drb.cookie(cookie);
 
 		// when
 		result = mvc.perform(drb)
@@ -120,31 +168,100 @@ public class DatabaseControllerTest extends ControllerTest{
 
 	}
 
+
 	@Test
-	public void testDatabaseAdd_No_Login() throws Exception {
+	public void testModifyDatabase() throws Exception {
 
 		// give
-		drb=post("/database/add").accept(MediaType.APPLICATION_JSON).locale(Locale.KOREA)
-				.param("host", dto.getHost())
-				.param("hostAlias", dto.getHostAlias())
-				.param("schemaName", dto.getSchemaName())
-				.param("account", dto.getAccount())
-				.param("password", dto.getPassword())
-				.param("port", dto.getPort())
-				.param("driver", dto.getDriver().toString())
-				.param("charset", dto.getCharset().toString())
+		drb=put("/database/modify").accept(MediaType.APPLICATION_JSON).locale(Locale.KOREA)
+				.param("id", dv.getId().toString())
+				.param("host", "10.20.30.40")
+				.param("hostAlias", "testHostAliaseModify")
+				.param("schemaName", "testSchemaNameMoidfy")
+				.param("account", dv.getAccount())
+				.param("password", "1234asdfg")
+				.param("port", dv.getPort())
+				.param("driver", dv.getDriver().toString())
+				.param("charset", dv.getCharset().toString())
 				;
+
+		// 로그인 cookie 정보 추가
+		drb.cookie(cookie);
 
 		// when
 		result = mvc.perform(drb)
-				.andExpect(status().isMethodNotAllowed())
+				.andExpect(status().isOk())
 				.andDo(print())
 				.andReturn();
 
 		 responseObject = new ObjectMapper().readValue(result.getResponse().getContentAsString(),HashMap.class);
 
 		 // then
-		 assertThat(responseObject.get("httpStatus"), equalTo(405));
-		 assertThat(responseObject.get("message"), equalTo("로그인이 필요한 서비스입니다. 로그인 해주시기 바랍니다."));
+		 assertThat(responseObject.get("httpStatus"), equalTo(200));
+		 assertThat(responseObject.get("contents"), notNullValue());
+		 assertThat(responseObject.get("rowCount"), equalTo(1));
+		 assertThat(responseObject.get("message"), equalTo("Database 정보가 저장 되었습니다."));
+
+	}
+
+
+	@Test
+	public void testDeleteDatabase() throws Exception {
+
+		// give
+		drb=put("/database/modify").accept(MediaType.APPLICATION_JSON).locale(Locale.KOREA)
+				.param("id", dv.getId().toString())
+				.param("host", "10.20.30.40")
+				.param("hostAlias", "testHostAliaseModify")
+				.param("schemaName", "testSchemaNameMoidfy")
+				.param("account", dv.getAccount())
+				.param("password", "1234asdfg")
+				.param("port", dv.getPort())
+				.param("driver", dv.getDriver().toString())
+				.param("charset", dv.getCharset().toString())
+				;
+
+		// 로그인 cookie 정보 추가
+		drb.cookie(cookie);
+
+		// when
+		result = mvc.perform(drb)
+				.andExpect(status().isOk())
+				.andDo(print())
+				.andReturn();
+
+		 responseObject = new ObjectMapper().readValue(result.getResponse().getContentAsString(),HashMap.class);
+
+		 // then
+		 assertThat(responseObject.get("httpStatus"), equalTo(200));
+		 assertThat(responseObject.get("contents"), notNullValue());
+		 assertThat(responseObject.get("rowCount"), equalTo(1));
+		 assertThat(responseObject.get("message"), equalTo("Database 정보가 저장 되었습니다."));
+	}
+
+
+	@Test
+	public void testGetList() throws Exception {
+
+		// give
+		drb=get("/database/list").accept(MediaType.APPLICATION_JSON).locale(Locale.KOREA)
+//				.param("charset", dv.getCharset().toString())
+				;
+
+		// 로그인 cookie 정보 추가
+		drb.cookie(cookie);
+
+		// when
+		result = mvc.perform(drb)
+				.andExpect(status().isOk())
+				.andDo(print())
+				.andReturn();
+
+		 responseObject = new ObjectMapper().readValue(result.getResponse().getContentAsString(),HashMap.class);
+
+		 // then
+		 assertThat(responseObject.get("httpStatus"), equalTo(200));
+		 assertThat(responseObject.get("contents"), notNullValue());
+		 assertThat(responseObject.get("rowCount"), equalTo(3));
 	}
 }
