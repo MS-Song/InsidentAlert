@@ -123,6 +123,13 @@ var javaModel=function(){
 		return;
 	}
 
+	// 테이블 네임을 변경하기 때문에 치환 한다.
+	var tableNameAlias=database.name;
+	
+	if(tableNameAlias.indexOf('t')==0){
+		tableNameAlias=tableNameAlias.substring(1, tableNameAlias.length);
+	}	
+	
 	// 컬럼명칭
 	var columnList=getColumns('selectList');
 	// 코멘트
@@ -132,8 +139,10 @@ var javaModel=function(){
 	
 	var getterSetters="";
 	
+	
+	
 	var html='\n/**\n\r* Table Name '+database.name+'\n\r*/\n\r';
-		html+='public class '+ tableStyleConverter(database.name) + " { \n";
+		html+='public class '+ tableStyleConverter(tableNameAlias) + " { \n";
 
 	for(var i=0;i<columnList.length;i++){
 		var column=columnStyleConverter(columnList[i]);
