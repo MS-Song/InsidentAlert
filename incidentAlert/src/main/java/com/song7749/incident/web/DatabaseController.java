@@ -99,7 +99,6 @@ public class DatabaseController {
 
 		// 권한 확인 후에 관리자가 아니면 database 확인 후 조회 하도록 처리 한다.
 		// 일반 회원인 경우 회원의 권한이 있는 DB만 조회 가능 하다
-		logger.trace(format("{}", "Session log"),session.getLogin());
 		if(session.getLogin().getAuthType().equals(AuthType.NORMAL)){
 			return memberManager.findDatabaseListByMemberAllow(
 					new MemberDatabaseFindDto(

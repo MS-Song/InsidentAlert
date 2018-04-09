@@ -127,14 +127,20 @@ var getDataParseView = function(url,parmeters,viewName,isCreateHeader,isCache,is
     		// 실행 로그 기록
     		if(isWriteLog){
     			// 실행이 종료되면 결과를 보여준다
-    			try {
-    				// 시간 객체 제거
-    				clearInterval(timeInterval);
-    				$$(viewName).config.executedTime=parseInt(data.json().processTime);
-    				$$("database_query_execute_info").define("label",'Rows: '+ comma(data.json().rowCount) + ', Time: '+comma(data.json().processTime) + ' ms');	
-				} catch (e) {
-					$$("database_query_execute_info").define("label",'Error :'+data.json().message);
-				}
+    			if(data.json().httpStatus==200){
+        			try {
+        				// 시간 객체 제거
+        				clearInterval(timeInterval);
+        				$$(viewName).config.executedTime=parseInt(data.json().processTime);
+        				$$("database_query_execute_info").define("label",'Rows: '+ comma(data.json().rowCount) + ', Time: '+comma(data.json().processTime) + ' ms');	
+    				} catch (e) {
+    					$$("database_query_execute_info").define("label",'Error :'+data.json().message);
+        				$$("database_query_execute_info").define("tooltip",'Error :'+data.json().message);    					
+    				}
+    			} else {
+    				$$("database_query_execute_info").define("label",'Error :'+data.json().message);
+    				$$("database_query_execute_info").define("tooltip",'Error :'+data.json().message);
+    			}
     			$$("database_query_execute_info").refresh();
     			
     			//쿼리 로그 기록

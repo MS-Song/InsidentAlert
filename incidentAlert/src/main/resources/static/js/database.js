@@ -985,12 +985,14 @@ var database_query_cell = [{
 							value:"auto commit",
 							tooltip:"Auto Commit 활성-비활성., 단축키:Ctrl+9",
 							on:{"onItemClick":function(){
-								if(database.autoCommit) 	database.autoCommit=false;
-								else 						database.autoCommit=true;
-	
-								$$("database_query_auto_commit_info").define("label","Auto-Commit : "+database.autoCommit);
+								if(executeQueryParams.autoCommit){
+									executeQueryParams.autoCommit=false;
+								} else{
+									executeQueryParams.autoCommit=true;
+								} 
+								$$("database_query_auto_commit_info").define("label","Auto-Commit : "+executeQueryParams.autoCommit);
 								$$("database_query_auto_commit_info").refresh();
-								webix.message({ type:"error", text:"Auto-Commit : " + database.autoCommit +" 상태로 변경"});
+								webix.message({ type:"error", text:"Auto-Commit : " + executeQueryParams.autoCommit +" 상태로 변경"});
 							}}
 						},
 					    {
@@ -1025,13 +1027,14 @@ var database_query_cell = [{
 						label:"", 
 						align:"left",
 						adjust:true,
-						height:25
+						height:25,
+						tooltip:true
 					},
 					{
 						// auto-commit 상태 확인
 						id:"database_query_auto_commit_info",
 						view:"label", 
-						label:"Auto-Commit : "+database.autoCommit, 
+						label:"Auto-Commit : "+executeQueryParams.autoCommit, 
 						align:"right",
 						width : 170,
 						height: 25,
