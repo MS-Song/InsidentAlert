@@ -22,7 +22,7 @@ import com.song7749.incident.drs.value.MemberVo;
 
 /**
  * <pre>
- * Class Name : IniConfigBean.java
+ * Class Name : InitConfigBean.java
  * Description : App 실행 시 사전에 처리해야 하는 작업들을 정의 함.
  *
  * 1. Root 유저 등록
@@ -42,7 +42,7 @@ import com.song7749.incident.drs.value.MemberVo;
 */
 
 @Component
-public class IniConfigBean {
+public class InitConfigBean {
 
 	Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -80,7 +80,6 @@ public class IniConfigBean {
 
 
 		// root 유저입력
-
 		Database mysql = new Database(
 				"local-dev"
 				, "mysql-local"

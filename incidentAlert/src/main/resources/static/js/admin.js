@@ -121,18 +121,16 @@ var adminAddDatabasePopup=function(){
 				{
 					cols:[
 		    			{ id:"resist", 	view:"button", label:'등록', click:function(){
-		    				webix.ajax().post("/database/addDatabases.json", this.getFormView().getValues(), function(text,data){
-		    					// 가입 실패
-		    					if(data.json().httpStatus !=200){
-		    						// validate 메세지 
-	    							webix.message({ type:"error", text:data.json().desc});
-		    					} else { // 가입 성공
+		    				webix.ajax().post("/database/add", this.getFormView().getValues(), function(text,data){
+		    					if(data.json().httpStatus ==200){
 		    						webix.message("데이터베이스 등록 완료");
-		    						// 0.3 초 후에 팝업 닫고 데이터베이스 팝업창 이로드 한다.	
 		    						window.setTimeout(function(){
 		    							$$("admin_add_database_popup").hide();
 		    							adminDatabaseListPopup();
 		    						}, 300)										
+
+		    					} else { 
+	    							webix.message({ type:"error", text:data.json().desc});
 		    					}
 		    				});
 		    			}},

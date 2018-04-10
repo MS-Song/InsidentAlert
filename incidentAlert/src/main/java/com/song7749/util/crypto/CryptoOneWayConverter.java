@@ -35,7 +35,7 @@ public class CryptoOneWayConverter implements AttributeConverter<String,String> 
 		try {
 			return CryptoAES.encrypt(attribute);
 		} catch (Exception e) {
-			logger.error(format("{}","PasswordConverter.convertToDatabaseColumn"),e.getMessage());
+			logger.error(format("{}","CryptoOneWayConverter.convertToDatabaseColumn"),e.getMessage());
 		}
 		return attribute;
 	}

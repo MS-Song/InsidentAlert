@@ -28,7 +28,6 @@ import com.song7749.incident.drs.service.LoginManager;
 import com.song7749.incident.drs.service.MemberManager;
 import com.song7749.incident.drs.session.LoginSession;
 import com.song7749.incident.drs.type.AuthType;
-import com.song7749.incident.drs.type.LoginResponseType;
 import com.song7749.incident.drs.type.MemberModifyByAdminDto;
 import com.song7749.incident.drs.value.MemberAddDto;
 import com.song7749.incident.drs.value.MemberDatabaseAddOrModifyDto;
@@ -261,7 +260,7 @@ public class MemberController {
 			,notes = "자주 사용하는 쿼리 리스트를 조회 한다."
 			,response=MemberSaveQueryVo.class)
 	@RequestMapping(value="/findMemberSaveQuery",method={RequestMethod.GET,RequestMethod.POST})
-	@Login(type=LoginResponseType.EXCEPTION,value={AuthType.NORMAL,AuthType.ADMIN})
+	@Login({AuthType.NORMAL,AuthType.ADMIN})
 	public Page<MemberSaveQueryVo> MemberSaveQuery(
 			HttpServletRequest request, HttpServletResponse response,
 			@Valid @ModelAttribute MemberSaveQueryFindDto dto,
