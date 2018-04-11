@@ -68,22 +68,4 @@ public interface LoginManager {
 	 * @return boolean
 	 */
 	public boolean isAccese(HttpServletRequest request, HttpServletResponse response, Login login);
-
-	/**
-	 * 로그인 사용자와 입력받은 ID가 동일한가 검증
-	 * @param request
-	 * @param response
-	 * @param loginId
-	 * @return boolean
-	 */
-	public boolean isIdentification(HttpServletRequest request, HttpServletResponse response, String loginId);
-
-	/**
-	 * 로그인 사용자와 입력받은 ID가 동일한가 검증
-	 * @param request
-	 * @param response
-	 * @param id
-	 * @return boolean
-	 */
-	public boolean isIdentification(HttpServletRequest request, HttpServletResponse response, Long id);
 }

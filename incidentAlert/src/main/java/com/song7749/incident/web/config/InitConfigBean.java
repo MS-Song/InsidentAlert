@@ -2,6 +2,9 @@ package com.song7749.incident.web.config;
 
 import static com.song7749.util.LogMessageFormatter.format;
 
+import java.sql.SQLException;
+import java.util.List;
+
 import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
@@ -14,10 +17,9 @@ import com.song7749.incident.drs.domain.Database;
 import com.song7749.incident.drs.domain.Member;
 import com.song7749.incident.drs.repository.DatabaseRepository;
 import com.song7749.incident.drs.repository.MemberRepository;
+import com.song7749.incident.drs.service.DBclienManager;
 import com.song7749.incident.drs.service.MemberManager;
 import com.song7749.incident.drs.type.AuthType;
-import com.song7749.incident.drs.type.Charset;
-import com.song7749.incident.drs.type.DatabaseDriver;
 import com.song7749.incident.drs.value.MemberVo;
 
 /**
@@ -55,6 +57,9 @@ public class InitConfigBean {
 	@Autowired
 	MemberManager memberManager;
 
+	@Autowired
+	DBclienManager dbClientManager;
+
 	@Transactional
 	@PostConstruct
     public void init(){
@@ -78,31 +83,17 @@ public class InitConfigBean {
 			logger.trace(format("{}", "root user info"),aleadyMember);
 		}
 
-
-		// root 유저입력
-		Database mysql = new Database(
-				"local-dev"
-				, "mysql-local"
-				, "dbBilling"
-				, "song7749"
-				, "94426dscd"
-				, DatabaseDriver.MYSQL
-				, Charset.UTF8
-				, "3306"
-				, null);
-
-		databaseRepository.saveAndFlush(mysql);
-
-		Database oracle = new Database(
-				"local-dev"
-				, "oracle-local"
-				, "XE"
-				, "SONG7749"
-				, "94426dscd"
-				, DatabaseDriver.ORACLE
-				, Charset.UTF8
-				, "1521"
-				, null);
-		databaseRepository.saveAndFlush(oracle);
+		// Database connection 을 미리 생성 한다.
+		List<Database> list = databaseRepository.findAll();
+		if(null!=list && list.size() !=0) {
+			for(Database database : list) {
+				try {
+					logger.info(format("{}", "Database Try Connection "),database);
+					dbClientManager.getConnection(database);
+				} catch (SQLException e) {
+					logger.error(format("{}", "Database Connection Fail log"),e.getMessage());
+				}
+			}
+		}
     }
 }

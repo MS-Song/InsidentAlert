@@ -311,7 +311,7 @@ var equals=function (a,b){
 var errorControll = function(response){
 	// 로그인 에러 처리
 	webix.message({ type:"error", text:response.message });
-	if(response.status == 405){
+	if(response.httpStatus == 405){
 		login_popup();
 	} 
 };

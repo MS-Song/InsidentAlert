@@ -29,7 +29,6 @@ repositories {
 	maven { url "https://code.lds.org/nexus/content/groups/main-repo" }
 }
 
-
 dependencies {
 	compile('org.springframework.boot:spring-boot-starter-aop')
 	compile('org.springframework.boot:spring-boot-starter-cache')
@@ -48,6 +47,7 @@ dependencies {
 	compile ('com.oracle:ojdbc6:11.2.0.3')
 	compile('javax.xml.bind:jaxb-api:2.2.11')
 	compile("org.springframework.boot:spring-boot-devtools")
+	compile("com.nimbusds:nimbus-jose-jwt:5.9")
 	runtime('com.h2database:h2')
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 	testCompile('org.springframework.restdocs:spring-restdocs-mockmvc')

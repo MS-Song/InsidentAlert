@@ -4,7 +4,6 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.transaction.Transactional;
 
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
@@ -12,6 +11,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.song7749.incident.drs.repository.LogRepository;
 import com.song7749.incident.drs.value.LogLoginAddDto;
@@ -36,7 +37,7 @@ public class LogManagerImpl implements LogManager {
 	ModelMapper mapper;
 
 	@Async
-	@Transactional
+	@Transactional(propagation=Propagation.NOT_SUPPORTED )
 	@Override
 	public void addLogLogin(LogLoginAddDto dto) {
 		logRepository.saveAndFlush(dto.getLogLogin(mapper)).getLogLoginVo(mapper);
@@ -50,7 +51,7 @@ public class LogManagerImpl implements LogManager {
 
 	@Override
 	@Async
-	@Transactional
+	@Transactional(propagation=Propagation.NOT_SUPPORTED )
 	public void addQueryExecuteLog(LogQueryAddDto dto) {
 		logRepository.saveAndFlush(dto.getLogLogin(mapper)).getLogLoginVo(mapper);
 	}

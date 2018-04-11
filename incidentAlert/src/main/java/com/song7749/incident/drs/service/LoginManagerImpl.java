@@ -85,47 +85,63 @@ public class LoginManagerImpl implements LoginManager{
 	@Valid
 	@Transactional
 	public boolean doLogin(LoginDoDto dto,HttpServletRequest request, HttpServletResponse response){
-
 		Member member = memberRepository.findByLoginIdAndPassword(dto.getLoginId(), dto.getPassword());
 		// 회원 정보가 조회가 되면.. 회원이 존재함.
-		if(null != member){
-			// 로그인 cookie 정보를 생성 한다.
-			LoginAuthVo lav = mapper.map(member, LoginAuthVo.class);
-			lav.setSessionCreateDate(new Date(System.currentTimeMillis()));
-			lav.setIp(request.getRemoteAddr());
-
-			String cipherValue = null;
-			try {
-				cipherValue=CryptoAES.encrypt(ObjectJsonUtil.getJsonStringByObject(lav));
-			} catch (Exception e) {
-				throw new IllegalArgumentException(e.getMessage());
-			}
-
-			Cookie cipherCookie = new Cookie(cipher,cipherValue);
-			cipherCookie.setMaxAge(60*this.sessionTimeout);
-			cipherCookie.setPath("/");
-			response.addCookie(cipherCookie);
+		if(null != member
+				&& null != member.getId()){
 
 			// 마지막 로그인 시간 업데이트
 			member.setLastLoginDate(new Date(System.currentTimeMillis()));
 			memberRepository.saveAndFlush(member);
+			// 인증쿠키 생성 및 인증 기록
 
-			// 로그인 로그 기록 -- asyc 기록
-			LogLoginAddDto logLoginAddDto = new LogLoginAddDto(
-					request.getRemoteAddr(),
-					member.getLoginId(),
-					cipherValue);
-			logManager.addLogLogin(logLoginAddDto);
+			// 로그인 인증 정보를 생성한다.
+			LoginAuthVo lav = mapper.map(member, LoginAuthVo.class);
+			lav.setCreate(new Date(System.currentTimeMillis()));
+			lav.setRefresh(lav.getCreate());
+			lav.setIp(request.getRemoteAddr());
 
-			logger.debug(format("{}","Login Log"),logLoginAddDto);
-
-			return true;
+			return makeLoginCookie(lav, request, response);
 		}
 		throw new IllegalArgumentException("id=ID 또는 패스워드가 틀립니다.");
 	}
 
+	/**
+	 * 로그인 쿠키를 생성한다.
+	 * 	-- 만료 기간 전에 로그인 쿠키 재생성에도 사용된다.
+	 * @param member
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	private boolean makeLoginCookie(LoginAuthVo lav,HttpServletRequest request, HttpServletResponse response) {
+		// 인증 값 생성
+		String cipherValue = null;
+		try {
+			cipherValue=CryptoAES.encrypt(ObjectJsonUtil.getJsonStringByObject(lav));
+		} catch (Exception e) {
+			throw new IllegalArgumentException(e.getMessage());
+		}
+
+		// 인증 쿠키 생성
+		Cookie cipherCookie = new Cookie(cipher,cipherValue);
+		cipherCookie.setMaxAge(60*this.sessionTimeout);
+		cipherCookie.setPath("/");
+		response.addCookie(cipherCookie);
+
+		// 로그인 로그 기록 -- asyc 기록
+		LogLoginAddDto logLoginAddDto = new LogLoginAddDto(
+				request.getRemoteAddr(),
+				lav.getLoginId(),
+				cipherValue);
+		logManager.addLogLogin(logLoginAddDto);
+		logger.debug(format("{}","Login Log"),logLoginAddDto);
+		return true;
+	}
+
 	@Override
 	public void doLogout(HttpServletResponse response) {
+		// 인증 쿠키 값 제거
 		Cookie cookie = new Cookie(cipher,"");
 		cookie.setPath("/");
 		response.addCookie(cookie);
@@ -151,16 +167,18 @@ public class LoginManagerImpl implements LoginManager{
 			// Login Session 도 생성 한다.
 			try {
 				if(!loginSession.isLogin()) {
-					logger.debug(format("{}","apikey Session create"),lav.getMember(mapper));
+					logger.debug(format("{}","apikey Session create"),lav);
 					loginSession.setSesseion(lav);
 				}
 			} catch (Exception e) {
 				logger.info(format("{}", "apikey Session Error Message"),e.getMessage());
 			}
+
+			// 인증에 대한 기록을 남겨야 하나 인증키 방식은 빈번함으로 별도의 프로세스가 필요 할 것으로 보임.
+
 			return lav.getLoginId();
 
 		} else { // cookie 가 있는 경우
-
 			String cipherValue = null;
 			Cookie[] cookie = request.getCookies();
 
@@ -182,26 +200,42 @@ public class LoginManagerImpl implements LoginManager{
 							} catch (Exception e) {
 								throw new IllegalArgumentException("로그인 정보 복호화 실패. 관리자에게 문의 하시기 바랍니다.");
 							}
-							// session 갱신 시간 이후인 경우 DB의 인증 생성 시간과 비교 한다.
-							if(lav.getSessionCreateDate().before(new Date(System.currentTimeMillis() - sessionChecktime*1000))) {
-								// TODO 로그인 기록을 확인하여 기록이 정상 적이라면 cookie 의 시간을 갱신 한다.
-								lav.setSessionCreateDate(new Date(System.currentTimeMillis()));
-								logger.trace(format("{}", "session 갱신"),lav);
 
+							// TODO session 의 IP 와 현재 IP 비교
+							// session 갱신 시간 이후인 경우 DB의 인증 생성 시간과 비교 한다.
+							// 인증 체크 시간 후
+							boolean isSessionRefresh = lav.getRefresh().before(new Date(System.currentTimeMillis() - sessionChecktime*60*1000));
+							// 인증 만료시간 전
+							boolean isSessionTimeout = lav.getRefresh().after(new Date(System.currentTimeMillis() - sessionTimeout*60*1000));
+							// 인증 체크시간 후 인증 만료시간 전인 경우에 인증을 갱신 한다.
+							logger.debug(format("갱신 시간 후 : {} \n만료시간 전: {} ","Login Session Check"),isSessionRefresh,isSessionTimeout);
+
+							if(isSessionRefresh && isSessionTimeout) {
+								// 회원 DB 를 조회하여 인증 정보를 갱신 한다.
+								Member member = memberRepository.findByLoginId(lav.getLoginId());
+								// 회원 정보가 조회가 되면.. 회원이 존재함.
+								if(null != member && null != member.getId()){
+									// 회원 정보가 변경되었을 수 있음으로 갱신 한다.
+									mapper.map(member, lav);
+									// 인증 시간 갱신
+									lav.setRefresh(new Date(System.currentTimeMillis()));
+									// 로그인 정보 재 생성
+									makeLoginCookie(lav, request, response);
+									logger.debug(format("{}","Login Session refresh"),lav);
+								} else {
+									return null;
+								}
+							} else if(!isSessionTimeout) { // 만료시간 이후라면
+								return null;
 							}
-							// session 의 IP 와 현재 IP 비교
 
 							// Login Session 도 생성 한다.
-							try {
-								if(!loginSession.isLogin()) {
-									logger.debug(format("{}","Login Session create"),lav.getMember(mapper));
-									loginSession.setSesseion(lav);
-								}
-							} catch (Exception e) {
-								logger.info(format("{}", "Login Session Error Message"),e.getMessage());
-							}
-							return lav.getLoginId();
+							logger.debug(format("{}","Login Session create"),lav);
+							loginSession.setSesseion(lav);
+							// ID 리턴
+							return null!=lav ? lav.getLoginId() : null;
 						}
+						break;
 					}
 				}
 			}
@@ -215,33 +249,18 @@ public class LoginManagerImpl implements LoginManager{
 	 * @param login
 	 * @return boolean
 	 */
-	@Transactional(readOnly=true)
 	@Override
 	public boolean isAccese(HttpServletRequest request, HttpServletResponse response, Login login) {
-		// 회원 로그인 정보에서 데이터를 가져와서 권한 여부를 판단한다.
-		Member member = memberRepository.findByLoginId(getLoginID(request,response));
+		// 세션에 있는지 확인
+		if(loginSession.isLogin()
+				&& null != loginSession.getLogin().getAuthType()) {
 
-		// 회원이 아닌 경우 권한이 없다 - 모든 페이지를 작동 불능으로 처리한다.
-		if(null!=member && null!=member.getAuthType()){
 			for(AuthType at : login.value()){
-				if(member.getAuthType().equals(at)){
+				if(loginSession.getLogin().getAuthType().equals(at)){
 					return true;
 				}
 			}
 		}
 		return false;
-	}
-
-	@Transactional(readOnly=true)
-	@Override
-	public boolean isIdentification(HttpServletRequest request, HttpServletResponse response, Long id) {
-		return isIdentification(request, response, memberRepository.findById(id).get().getLoginId());
-	}
-
-	@Transactional(readOnly=true)
-	@Override
-	public boolean isIdentification(HttpServletRequest request, HttpServletResponse response, String loginId) {
-		String rLoginId = getLoginID(request, response);
-		return  rLoginId != null ? rLoginId.equals(loginId) : false;
 	}
 }

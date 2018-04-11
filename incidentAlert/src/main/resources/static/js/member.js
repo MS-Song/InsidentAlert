@@ -53,8 +53,11 @@ webix.ready(function(){
     			getMemberAuthTypes();
     		}
     		
-		} else { // 로그인 되어 있지 않으면 비 활성화
+		} else { // 로그인 되어 있지 않으면
+			// 메뉴 삭제
 			$$("menu").getBody().data.remove(3);
+			// 에러처리
+			errorControll(data.json());
 		}
 	});			
 });		

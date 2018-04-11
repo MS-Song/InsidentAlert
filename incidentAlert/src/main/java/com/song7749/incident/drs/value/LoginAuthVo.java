@@ -2,11 +2,9 @@ package com.song7749.incident.drs.value;
 
 import java.util.Date;
 
-import org.modelmapper.ModelMapper;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.song7749.base.AbstractVo;
-import com.song7749.incident.drs.domain.Member;
 import com.song7749.incident.drs.type.AuthType;
 
 /**
@@ -38,7 +36,10 @@ public class LoginAuthVo extends AbstractVo {
 	private AuthType authType;
 
 	@DateTimeFormat(pattern = "yyyy-MM-dd h:i:s")
-	private Date sessionCreateDate;
+	private Date create;
+
+	@DateTimeFormat(pattern = "yyyy-MM-dd h:i:s")
+	private Date refresh;
 
 	public LoginAuthVo() {}
 
@@ -74,11 +75,28 @@ public class LoginAuthVo extends AbstractVo {
 	 * @param authType
 	 * @param sessionCreateDate
 	 */
-	public LoginAuthVo(Long id, String loginId, AuthType authType, Date sessionCreateDate) {
+	public LoginAuthVo(Long id, String loginId, AuthType authType, Date create) {
 		this.id = id;
 		this.loginId = loginId;
 		this.authType = authType;
-		this.sessionCreateDate = sessionCreateDate;
+		this.create = create;
+	}
+
+	/**
+	 * @param id
+	 * @param loginId
+	 * @param ip
+	 * @param authType
+	 * @param create
+	 * @param refresh
+	 */
+	public LoginAuthVo(Long id, String loginId, String ip, AuthType authType, Date create, Date refresh) {
+		this.id = id;
+		this.loginId = loginId;
+		this.ip = ip;
+		this.authType = authType;
+		this.create = create;
+		this.refresh = refresh;
 	}
 
 	public Long getId() {
@@ -108,7 +126,6 @@ public class LoginAuthVo extends AbstractVo {
 	public AuthType getAuthType() {
 		if(null==authType)
 			throw new IllegalArgumentException("권한 부여가 되지 않아 접근이 불가능 합니다.");
-
 		return authType;
 	}
 
@@ -116,15 +133,19 @@ public class LoginAuthVo extends AbstractVo {
 		this.authType = authType;
 	}
 
-	public Date getSessionCreateDate() {
-		return sessionCreateDate;
+	public Date getCreate() {
+		return create;
 	}
 
-	public void setSessionCreateDate(Date sessionCreateDate) {
-		this.sessionCreateDate = sessionCreateDate;
+	public void setCreate(Date create) {
+		this.create = create;
 	}
 
-	public Member getMember(ModelMapper mapper) {
-		return mapper.map(this, Member.class);
+	public Date getRefresh() {
+		return refresh;
+	}
+
+	public void setRefresh(Date refresh) {
+		this.refresh = refresh;
 	}
 }
